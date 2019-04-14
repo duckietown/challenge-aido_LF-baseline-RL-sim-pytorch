@@ -1,6 +1,7 @@
-challenge:
-  - aido2_LF_r2-v4
-protocol: aido2_db18_agent_1
+# challenge name(s); defaults to all compatible challenges
+# challenge: [c1,c2]
+
+protocol: aido2_db18_agent-z2
 user-label: "Baseline solution using reinforcement learning"
 user-payload: {}
 description: |
