@@ -1,15 +1,7 @@
 # Definition of Submission container
 
-FROM duckietown/aido2-base-python3:z2
+FROM duckietown/challenge-aido_lf-template-pytorch:aido2
 
-# DO NOT MODIFY: your submission won't run if you do
-RUN apt-get update -y && apt-get install -y --no-install-recommends \
-         gcc \
-         libc-dev\
-         git \
-         bzip2 \
-         python-tk && \
-     rm -rf /var/lib/apt/lists/*
 
 # let's create our workspace, we don't want to clutter the container
 RUN rm -r /workspace; mkdir /workspace
