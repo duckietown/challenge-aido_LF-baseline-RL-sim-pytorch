@@ -6,10 +6,9 @@ import gym
 import gym_duckietown
 import os
 
-import utils
 from args import get_ddpg_args
 from ddpg import DDPG
-from utils import seed, evaluate_policy
+from utils import seed, evaluate_policy, ReplayBuffer
 from wrappers import NormalizeWrapper, ImgWrapper, \
     DtRewardWrapper, ActionWrapper, ResizeWrapper
 
