@@ -6,7 +6,7 @@ import gym
 import gym_duckietown
 import os
 
-from args import get_ddpg_args
+from args import get_ddpg_args_train
 from ddpg import DDPG
 from utils import seed, evaluate_policy, ReplayBuffer
 from wrappers import NormalizeWrapper, ImgWrapper, \
@@ -16,7 +16,7 @@ policy_name = "DDPG"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-args = get_ddpg_args()
+args = get_ddpg_args_train()
 
 file_name = "{}_{}".format(
     policy_name,
@@ -49,7 +49,7 @@ max_action = float(env.action_space.high[0])
 # Initialize policy
 policy = DDPG(state_dim, action_dim, max_action, net_type="cnn")
 
-replay_buffer = utils.ReplayBuffer()
+replay_buffer = ReplayBuffer()
 
 # Evaluate untrained policy
 evaluations= [evaluate_policy(env, policy)]

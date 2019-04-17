@@ -16,7 +16,7 @@ def seed(seed):
 
 # Simple replay buffer
 class ReplayBuffer(object):
-    def __init__(self,max_size):
+    def __init__(self, max_size=1e6):
         self.storage = []
         self.max_size = max_size
 
