@@ -11,14 +11,16 @@ from model import DDPG
 from wrappers import DTPytorchWrapper
 
 
-class PytorchRLTemplateAgent:
+class PytorchRLBaseline:
     def __init__(self, load_model=False, model_path=None):
         self.preprocessor = DTPytorchWrapper()
         self.model = DDPG(state_dim=self.preprocessor.shape, action_dim=2, max_action=1, net_type="cnn")
         self.current_image = np.zeros((640, 480, 3))
 
-        fp = model_path if model_path else "model"
-        self.model.load(fp, "models", for_inference=True)
+        # TODO: Uncomment when you train your model!
+        
+        # fp = model_path if model_path else "model"
+        # self.model.load(fp, "models", for_inference=True)
 
     def init(self, context: Context):
         context.info('init()')
@@ -67,7 +69,7 @@ def jpg2rgb(image_data: bytes) -> np.ndarray:
     return data
 
 def main():
-    node = PytorchRLTemplateAgent()
+    node = PytorchRLBaseline()
     protocol = protocol_agent_duckiebot1
     wrap_direct(node=node, protocol=protocol)
 
