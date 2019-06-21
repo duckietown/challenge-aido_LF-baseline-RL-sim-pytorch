@@ -9,5 +9,5 @@ setup(name='duckietown_rl',
                         'torch',
                         'numpy',
                         'matplotlib',
-                        'scipy']
+                        'scipy<=1.2.1']
       )
