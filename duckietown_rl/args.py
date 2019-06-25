@@ -23,7 +23,7 @@ def get_ddpg_args_train():
 
 def get_ddpg_args_test():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--seed", default=0, type=int)  # Sets Gym, PyTorch and Numpy seeds
+    parser.add_argument("--seed", default=0, type=int)  # Inform the test what seed was used in training
     parser.add_argument("--experiment", default=2, type=int)
     
     return parser.parse_args()
