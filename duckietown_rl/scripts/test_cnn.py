@@ -2,21 +2,22 @@ import gym
 import gym_duckietown
 import torch
 from ddpg import DDPG
+from args import get_ddpg_args_test
 from utils import evaluate_policy
 from wrappers import NormalizeWrapper, ImgWrapper, \
     DtRewardWrapper, ActionWrapper, ResizeWrapper
 from env import launch_env
 import numpy as np
 
-seed = 1
 policy_name = "DDPG"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+args = get_ddpg_args_test()
 
 file_name = "{}_{}".format(
     policy_name,
-    seed
+    args.seed
 )
 
 env = launch_env()
