@@ -15,9 +15,9 @@ class ResizeWrapper(gym.ObservationWrapper):
         self.shape = shape
 
     def observation(self, observation):
-        from scipy.misc import imresize
-        return imresize(observation, self.shape)
-
+        from PIL import Image
+        return np.array(Image.fromarray(observation).resize(self.shape))
+    
 
 class NormalizeWrapper(gym.ObservationWrapper):
     def __init__(self, env=None):
