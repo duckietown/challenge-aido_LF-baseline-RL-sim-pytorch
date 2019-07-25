@@ -6,5 +6,5 @@ class DTPytorchWrapper():
         self.transposed_shape = (shape[2], shape[0], shape[1])
 
     def preprocess(self, obs):
-        from scipy.misc import imresize
-        return imresize(obs, self.shape).transpose(2, 0, 1)
+        from PIL import Image
+        return np.array(Image.fromarray(observation).resize(self.shape)).transpose(2, 0, 1)
