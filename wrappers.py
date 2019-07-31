@@ -7,4 +7,4 @@ class DTPytorchWrapper():
 
     def preprocess(self, obs):
         from PIL import Image
-        return np.array(Image.fromarray(observation).resize(self.shape)).transpose(2, 0, 1)
+        return np.array(Image.fromarray(observation).resize(self.shape[0:2])).transpose(2, 0, 1)
