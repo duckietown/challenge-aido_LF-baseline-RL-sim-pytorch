@@ -1,6 +1,6 @@
 # Definition of Submission container
 
-FROM duckietown/challenge-aido_lf-template-pytorch:aido2
+FROM duckietown/challenge-aido_lf-template-pytorch:daffy
 
 
 # let's create our workspace, we don't want to clutter the container

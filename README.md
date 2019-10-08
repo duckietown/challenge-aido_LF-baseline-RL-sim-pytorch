@@ -11,16 +11,16 @@ This is a baseline for one of the challenges in the [the AI Driving Olympics](ht
 
 For submitting, please follow [the instructions available in the book][book].
  
-[book]: http://docs.duckietown.org/DT19/AIDO/out/
+[book]: http://docs.duckietown.org/daffy/AIDO/out/
 
-[lf]: http://docs.duckietown.org/DT19/AIDO/out/lf.html
+[lf]: http://docs.duckietown.org/daffy/AIDO/out/lf.html
 
-[lfv]: http://docs.duckietown.org/DT19/AIDO/out/lf_v.html
+[lfv]: http://docs.duckietown.org/daffy/AIDO/out/lf_v.html
 
-[lfvi]: http://docs.duckietown.org/DT19/AIDO/out/lf_v_i.html
+[lfvi]: http://docs.duckietown.org/daffy/AIDO/out/lf_v_i.html
 
 ## Description
 
 This is a solution baseline using Reinforcement Learning and PyTorch.
 
-[This code is documentedhere](http://docs.duckietown.org/DT19/AIDO/out/embodied_rl.html) for instructions
+[This code is documentedhere](http://docs.duckietown.org/daffy/AIDO/out/embodied_rl.html) for instructions
