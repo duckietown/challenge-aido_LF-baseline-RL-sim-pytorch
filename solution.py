@@ -38,7 +38,7 @@ class PytorchRLBaseline:
 
     def compute_action(self, observation):
         if observation.shape != self.preprocessor.transposed_shape:
-            observation = self.preprocessor.preprocessor(observation)
+            observation = self.preprocessor.preprocess(observation)
 
         action = self.model.predict(observation)
 
