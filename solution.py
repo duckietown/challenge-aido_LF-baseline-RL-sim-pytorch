@@ -18,7 +18,7 @@ class PytorchRLBaseline:
         self.current_image = np.zeros((640, 480, 3))
 
         # TODO: Uncomment when you train your model!
-        
+
         # fp = model_path if model_path else "model"
         # self.model.load(fp, "models", for_inference=True)
 
@@ -46,7 +46,8 @@ class PytorchRLBaseline:
 
     def on_received_get_commands(self, context: Context):
         pwm_left, pwm_right = self.compute_action(self.current_image)
-
+        pwm_left = float(np.clip(pwm_left, -1, +1))
+        pwm_right = float(np.clip(pwm_right, -1, +1))
         grey = RGB(0.0, 0.0, 0.0)
         led_commands = LEDSCommands(grey, grey, grey, grey, grey)
         pwm_commands = PWMCommands(motor_left=pwm_left, motor_right=pwm_right)
@@ -63,7 +64,7 @@ def jpg2rgb(image_data: bytes) -> np.ndarray:
     import io
     im = Image.open(io.BytesIO(image_data))
     im = im.convert('RGB')
-    data = np.array(im) 
+    data = np.array(im)
     assert data.ndim == 3
     assert data.dtype == np.uint8
     return data
