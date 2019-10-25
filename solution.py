@@ -37,9 +37,6 @@ class PytorchRLBaseline:
         self.current_image = self.preprocessor.preprocess(obs)
 
     def compute_action(self, observation):
-        if observation.shape != self.preprocessor.transposed_shape:
-            observation = self.preprocessor.preprocess(observation)
-
         action = self.model.predict(observation)
 
         return action.astype(float)
