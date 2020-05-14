@@ -67,7 +67,10 @@ class ActorCNN(nn.Module):
         x = self.bn2(self.lr(self.conv2(x)))
         x = self.bn3(self.lr(self.conv3(x)))
         x = self.bn4(self.lr(self.conv4(x)))
-        x = x.view(x.size(0), -1)  # flatten
+        try:
+            x = x.view(x.size(0), -1)  # flatten
+        except RuntimeError:
+            x = x.reshape(x.size(0), -1)
         x = self.dropout(x)
         x = self.lr(self.lin1(x))
 
@@ -129,7 +132,10 @@ class CriticCNN(nn.Module):
         x = self.bn2(self.lr(self.conv2(x)))
         x = self.bn3(self.lr(self.conv3(x)))
         x = self.bn4(self.lr(self.conv4(x)))
-        x = x.view(x.size(0), -1)  # flatten
+        try:
+            x = x.view(x.size(0), -1)  # flatten
+        except RuntimeError:
+            x = x.reshape(x.size(0), -1)
         x = self.lr(self.lin1(x))
         x = self.lr(self.lin2(torch.cat([x, actions], 1)))  # c
         x = self.lin3(x)
