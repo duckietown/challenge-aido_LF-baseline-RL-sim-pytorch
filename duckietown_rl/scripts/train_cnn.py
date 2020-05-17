@@ -1,8 +1,7 @@
+import pickle
 import random
-import re
 import resource
-import subprocess
-
+import gym_duckietown
 import numpy as np
 import torch
 import gym
@@ -21,13 +20,32 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 args = get_ddpg_args_train()
 
-def mem_logging():
+import contextlib
+import re
+def mem_logging(printy=True):
     # Prints peak memory usage to help debug
     out = subprocess.check_output(("ps -p " + str(os.getpid()) + " -o %mem").split(" "), universal_newlines=True)
 
     finds = re.findall(r"(\d+\.\d+)|\d", out)
 
-    print("Peak mem usage:", (finds[0]+"%") if len(finds) > 0 else "0%" )
+    if float(finds[0]) > 70:
+        exit()
+
+    if printy:
+        print("Peak mem usage:", (finds[0]+"%") if len(finds) > 0 else "0%" )
+    else:
+        return (finds[0]+"%") if len(finds) > 0 else "0%"
+
+@contextlib.contextmanager
+def mem_log():
+    print("Peak memory usage BEFORE call is: "+mem_logging(False))
+    yield None
+    print("Peak memory usage AFTER call is: "+mem_logging(False))
+
+def approximate_size(object):
+    with open("fake_pickle.fake", "wb") as f:
+        pickle.dump(object, f)
+    print("Obj '"+str(object)+"' is of size "+str(os.path.getsize("./fake_pickle.fake")))
 
 if args.log_file != None:
     print('You asked for a log file. "Tee-ing" print to also print to file "'+args.log_file+'" now...')
@@ -40,7 +58,6 @@ if args.log_file != None:
     os.dup2(tee.stdin.fileno(), sys.stdout.fileno())
     os.dup2(tee.stdin.fileno(), sys.stderr.fileno())
 
-import gym_duckietown
 
 file_name = "{}_{}".format(
     policy_name,
@@ -84,15 +101,27 @@ episode_num = 0
 done = True
 episode_reward = None
 env_counter = 0
+
+import tracemalloc
+tracemalloc.start()
+def tracemalloc_ss():
+    snapshot = tracemalloc.take_snapshot()
+    top_stats = snapshot.statistics('lineno')
+    for stat in top_stats[:10]:
+        print(stat)
+
 while total_timesteps < args.max_timesteps:
 
     if done:
 
         if total_timesteps != 0:
+            print("Replay buffer length is ", len(replay_buffer.storage))   #TODO rm
             print(("Total T: %d Episode Num: %d Episode T: %d Reward: %f") % (
                 total_timesteps, episode_num, episode_timesteps, episode_reward))
             mem_logging()
-            policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
+            with mem_log():
+                policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
+            tracemalloc_ss()
 
         # Evaluate episode
         if timesteps_since_eval >= args.eval_freq:
@@ -134,6 +163,7 @@ while total_timesteps < args.max_timesteps:
 
     # Store data in replay buffer
     replay_buffer.add(obs, new_obs, action, reward, done_bool)
+    #approximate_size(replay_buffer)   #TODO rm
 
     obs = new_obs
 
