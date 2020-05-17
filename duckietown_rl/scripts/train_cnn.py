@@ -1,9 +1,11 @@
 import random
+import re
+import resource
+import subprocess
 
 import numpy as np
 import torch
 import gym
-import gym_duckietown
 import os
 
 from args import get_ddpg_args_train
@@ -18,6 +20,27 @@ policy_name = "DDPG"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 args = get_ddpg_args_train()
+
+def mem_logging():
+    # Prints peak memory usage to help debug
+    out = subprocess.check_output(("ps -p " + str(os.getpid()) + " -o %mem").split(" "), universal_newlines=True)
+
+    finds = re.findall(r"(\d+\.\d+)|\d", out)
+
+    print("Peak mem usage:", (finds[0]+"%") if len(finds) > 0 else "0%" )
+
+if args.log_file != None:
+    print('You asked for a log file. "Tee-ing" print to also print to file "'+args.log_file+'" now...')
+
+    import subprocess, os, sys
+
+    tee = subprocess.Popen(["tee", args.log_file], stdin=subprocess.PIPE)
+    # Cause tee's stdin to get a copy of our stdin/stdout (as well as that
+    # of any child processes we spawn)
+    os.dup2(tee.stdin.fileno(), sys.stdout.fileno())
+    os.dup2(tee.stdin.fileno(), sys.stderr.fileno())
+
+import gym_duckietown
 
 file_name = "{}_{}".format(
     policy_name,
@@ -68,6 +91,7 @@ while total_timesteps < args.max_timesteps:
         if total_timesteps != 0:
             print(("Total T: %d Episode Num: %d Episode T: %d Reward: %f") % (
                 total_timesteps, episode_num, episode_timesteps, episode_reward))
+            mem_logging()
             policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
 
         # Evaluate episode
