@@ -80,8 +80,18 @@ class ActorCNN(nn.Module):
 
         # because we don't want our duckie to go backwards
         x = self.lin2(x)
-        x[:, 0] = self.max_action * self.sigm(x[:, 0])  # because we don't want the duckie to go backwards
+
+        #Second fix
+        x[:, 0] = self.tanh(x[:, 1])
         x[:, 1] = self.tanh(x[:, 1])
+
+        # First fix
+        #x[:, 0] = self.max_action * self.sigm(x[:, 0])  # because we don't want the duckie to go backwards
+        #x[:, 1] = self.max_action * self.sigm(x[:, 1])   # Charlie May 2020 https://github.com/duckietown/gym-duckietown/issues/198
+
+        # Original
+        #x[:, 0] = self.max_action * self.sigm(x[:, 0])  # because we don't want the duckie to go backwards
+        #x[:, 1] = self.tanh(x[:, 1])
 
         return x
 
@@ -172,7 +182,6 @@ class DDPG(object):
         self.critic_optimizer = torch.optim.Adam(self.critic.parameters())
 
     def predict(self, state):
-
         # just making sure the state has the correct format, otherwise the prediction doesn't work
         assert state.shape[0] == 3
 
@@ -180,7 +189,11 @@ class DDPG(object):
             state = torch.FloatTensor(state.reshape(1, -1)).to(device)
         else:
             state = torch.FloatTensor(np.expand_dims(state, axis=0)).to(device)
+
+        state = state.detach()
         return self.actor(state).cpu().data.numpy().flatten()
+        #print(action)
+        #return action
 
     def train(self, replay_buffer, iterations, batch_size=64, discount=0.99, tau=0.001):
 
