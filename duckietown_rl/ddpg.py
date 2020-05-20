@@ -39,7 +39,7 @@ class ActorCNN(nn.Module):
         super(ActorCNN, self).__init__()
 
         # ONLY TRU IN CASE OF DUCKIETOWN:
-        flat_size = 32 * 9 * 14
+        flat_size = 32 * 2 * 2
 
         self.lr = nn.LeakyReLU()
         self.tanh = nn.Tanh()
@@ -76,14 +76,18 @@ class ActorCNN(nn.Module):
 
         # this is the vanilla implementation
         # but we're using a slightly different one
-        # x = self.max_action * self.tanh(self.lin2(x))
+        # x = self.max_action * self.tanh(sel f.lin2(x))
 
         # because we don't want our duckie to go backwards
         x = self.lin2(x)
 
-        #Second fix
-        x[:, 0] = self.tanh(x[:, 1])
-        x[:, 1] = self.tanh(x[:, 1])
+        # Third fix
+        x[:, 0] = self.sigm(x[:, 0])
+        x[:, 1] = self.sigm(x[:, 1])
+
+        #Second fix: works okay, but the bot learns to go backwards, which is bad
+        #x[:, 0] = self.tanh(x[:, 0])
+        #x[:, 1] = self.tanh(x[:, 1])
 
         # First fix
         #x[:, 0] = self.max_action * self.sigm(x[:, 0])  # because we don't want the duckie to go backwards
@@ -117,7 +121,7 @@ class CriticCNN(nn.Module):
     def __init__(self, action_dim):
         super(CriticCNN, self).__init__()
 
-        flat_size = 32 * 9 * 14
+        flat_size = 32 * 2 * 2
 
         self.lr = nn.LeakyReLU()
 
@@ -191,9 +195,9 @@ class DDPG(object):
             state = torch.FloatTensor(np.expand_dims(state, axis=0)).to(device)
 
         state = state.detach()
-        return self.actor(state).cpu().data.numpy().flatten()
-        #print(action)
-        #return action
+        action = self.actor(state).cpu().data.numpy().flatten()
+        print(action)
+        return action
 
     def train(self, replay_buffer, iterations, batch_size=64, discount=0.99, tau=0.001):
 
