@@ -14,6 +14,8 @@ from wrappers import NormalizeWrapper, ImgWrapper, \
     DtRewardWrapper, ActionWrapper, ResizeWrapper
 from env import launch_env
 
+use_large = False
+
 policy_name = "DDPG"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -72,7 +74,7 @@ if args.save_models and not os.path.exists("./pytorch_models"):
 env = launch_env()
 
 # Wrappers
-env = ResizeWrapper(env)
+env = ResizeWrapper(env, ((120, 160, 3) if use_large else (64,64,3)))
 env = NormalizeWrapper(env)
 env = ImgWrapper(env) # to make the images from 160x120x3 into 3x160x120
 env = ActionWrapper(env)
@@ -88,7 +90,7 @@ max_action = float(env.action_space.high[0])
 
 
 # Initialize policy
-policy = DDPG(state_dim, action_dim, max_action, net_type="cnn")
+policy = DDPG(state_dim, action_dim, max_action, net_type="cnn", use_large=use_large)
 
 replay_buffer = ReplayBuffer(args.replay_buffer_max_size)
 
