@@ -35,11 +35,11 @@ class ActorDense(nn.Module):
 
 
 class ActorCNN(nn.Module):
-    def __init__(self, action_dim, max_action):
+    def __init__(self, action_dim, max_action, use_large=True):
         super(ActorCNN, self).__init__()
 
         # ONLY TRU IN CASE OF DUCKIETOWN:
-        flat_size = 32 * 9 * 14
+        flat_size = 32 * 9 * 14 if use_large else 32 * 2 * 2
 
         self.lr = nn.LeakyReLU()
         self.tanh = nn.Tanh()
@@ -76,22 +76,26 @@ class ActorCNN(nn.Module):
 
         # this is the vanilla implementation
         # but we're using a slightly different one
-        # x = self.max_action * self.tanh(self.lin2(x))
+        # x = self.max_action * self.tanh(sel f.lin2(x))
 
         # because we don't want our duckie to go backwards
         x = self.lin2(x)
 
-        #Second fix
-        x[:, 0] = self.tanh(x[:, 1])
-        x[:, 1] = self.tanh(x[:, 1])
+        # Third fix
+        #x[:, 0] = self.sigm(x[:, 0])
+        #x[:, 1] = self.sigm(x[:, 1])
+
+        #Second fix: works okay, but the bot learns to go backwards, which is bad
+        #x[:, 0] = self.tanh(x[:, 0])
+        #x[:, 1] = self.tanh(x[:, 1])
 
         # First fix
         #x[:, 0] = self.max_action * self.sigm(x[:, 0])  # because we don't want the duckie to go backwards
         #x[:, 1] = self.max_action * self.sigm(x[:, 1])   # Charlie May 2020 https://github.com/duckietown/gym-duckietown/issues/198
 
         # Original
-        #x[:, 0] = self.max_action * self.sigm(x[:, 0])  # because we don't want the duckie to go backwards
-        #x[:, 1] = self.tanh(x[:, 1])
+        x[:, 0] = self.max_action * self.sigm(x[:, 0])  # because we don't want the duckie to go backwards
+        x[:, 1] = self.tanh(x[:, 1])
 
         return x
 
@@ -114,10 +118,10 @@ class CriticDense(nn.Module):
 
 
 class CriticCNN(nn.Module):
-    def __init__(self, action_dim):
+    def __init__(self, action_dim, use_large=True):
         super(CriticCNN, self).__init__()
 
-        flat_size = 32 * 9 * 14
+        flat_size = 32 * 9 * 14 if use_large else 32 * 2 * 2
 
         self.lr = nn.LeakyReLU()
 
@@ -154,7 +158,7 @@ class CriticCNN(nn.Module):
 
 
 class DDPG(object):
-    def __init__(self, state_dim, action_dim, max_action, net_type):
+    def __init__(self, state_dim, action_dim, max_action, net_type, use_large=True):
         super(DDPG, self).__init__()
         assert net_type in ["cnn", "dense"]
 
@@ -166,8 +170,8 @@ class DDPG(object):
             self.actor_target = ActorDense(state_dim, action_dim, max_action).to(device)
         else:
             self.flat = False
-            self.actor = ActorCNN(action_dim, max_action).to(device)
-            self.actor_target = ActorCNN(action_dim, max_action).to(device)
+            self.actor = ActorCNN(action_dim, max_action, use_large).to(device)
+            self.actor_target = ActorCNN(action_dim, max_action, use_large).to(device)
 
         self.actor_target.load_state_dict(self.actor.state_dict())
         self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=1e-4)
@@ -176,8 +180,8 @@ class DDPG(object):
             self.critic = CriticDense(state_dim, action_dim).to(device)
             self.critic_target = CriticDense(state_dim, action_dim).to(device)
         else:
-            self.critic = CriticCNN(action_dim).to(device)
-            self.critic_target = CriticCNN(action_dim).to(device)
+            self.critic = CriticCNN(action_dim, use_large).to(device)
+            self.critic_target = CriticCNN(action_dim, use_large).to(device)
         self.critic_target.load_state_dict(self.critic.state_dict())
         self.critic_optimizer = torch.optim.Adam(self.critic.parameters())
 
@@ -191,9 +195,9 @@ class DDPG(object):
             state = torch.FloatTensor(np.expand_dims(state, axis=0)).to(device)
 
         state = state.detach()
-        return self.actor(state).cpu().data.numpy().flatten()
-        #print(action)
-        #return action
+        action = self.actor(state).cpu().data.numpy().flatten()
+        print(action)
+        return action
 
     def train(self, replay_buffer, iterations, batch_size=64, discount=0.99, tau=0.001):
 
