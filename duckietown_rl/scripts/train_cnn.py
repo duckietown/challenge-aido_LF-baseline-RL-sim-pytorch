@@ -1,3 +1,4 @@
+import copy
 import pickle
 import random
 import resource
@@ -9,7 +10,10 @@ import os
 
 from args import get_ddpg_args_train
 from ddpg import DDPG
+from torch import optim
 from utils import seed, evaluate_policy, ReplayBuffer
+
+from duckietown_rl.teacher import PurePursuitExpert
 from wrappers import NormalizeWrapper, ImgWrapper, \
     DtRewardWrapper, ActionWrapper, ResizeWrapper
 from env import launch_env
@@ -92,6 +96,84 @@ max_action = float(env.action_space.high[0])
 # Initialize policy
 policy = DDPG(state_dim, action_dim, max_action, net_type="cnn", use_large=use_large)
 
+import tracemalloc
+tracemalloc.start()
+def tracemalloc_ss():
+    snapshot = tracemalloc.take_snapshot()
+    top_stats = snapshot.statistics('lineno')
+    for stat in top_stats[:10]:
+        print(stat)
+
+if args.warmup_epochs > 0:
+    # Lifted from https://github.com/duckietown/gym-duckietown/blob/master/learning/imitation/basic/train_imitation.py
+
+    # Create an imperfect demonstrator
+    expert = PurePursuitExpert(env=env)
+
+    observations = []
+    actions = []
+
+    # let's collect our samples
+    for episode in range(0, args.warmup_episodes):
+        print("Starting episode", episode)
+        for steps in range(0, args.warmup_steps):
+            # use our 'expert' to predict the next action.
+            action = expert.predict(None)
+            observation, reward, done, info = env.step(action)
+            observations.append(observation)
+            actions.append(action)
+            if done:
+                break
+        env.reset()
+    env.close()
+
+    actions = np.clip(np.array(actions), -1, 1)
+    observations = np.array(observations)
+
+    model = policy.actor
+    # weight_decay is L2 regularization, helps avoid overfitting
+    optimizer = optim.SGD(
+        model.parameters(),
+        lr=0.0004,
+        weight_decay=1e-3
+    )
+
+    def all_warmup_batches(n=args.warmup_batch_size):
+        l = len(observations)
+
+        indices = []
+
+        for ndx in range(0, l, n):
+            indices.append(list(range(ndx,min(ndx + n, l))))
+
+        random.shuffle(indices)
+
+        for index in indices:
+            yield observations[np.array(index)], actions[np.array(index)]
+
+    #avg_loss = 0
+    for epoch in range(args.warmup_epochs):
+        print("Epoch:", epoch)
+        for obs_batch, act_batch in all_warmup_batches(args.warmup_batch_size):
+            optimizer.zero_grad()
+
+            batch_indices = np.random.randint(0, observations.shape[0], (args.warmup_batch_size))
+            obs_batch = torch.from_numpy(obs_batch).float().to(device)
+            act_batch = torch.from_numpy(act_batch).float().to(device)
+
+            model_actions = model(obs_batch)
+
+            loss = (model_actions - act_batch).norm(2).mean()
+            loss.backward()
+            optimizer.step()
+
+        #loss = loss.data[0]
+        #avg_loss = avg_loss * 0.995 + loss * 0.005
+
+    policy.actor_target = copy.deepcopy(model)
+    policy.save(file_name, directory="./pytorch_models")
+    exit()
+
 replay_buffer = ReplayBuffer(args.replay_buffer_max_size)
 
 # Evaluate untrained policy
@@ -103,14 +185,6 @@ episode_num = 0
 done = True
 episode_reward = None
 env_counter = 0
-
-import tracemalloc
-tracemalloc.start()
-def tracemalloc_ss():
-    snapshot = tracemalloc.take_snapshot()
-    top_stats = snapshot.statistics('lineno')
-    for stat in top_stats[:10]:
-        print(stat)
 
 while total_timesteps < args.max_timesteps:
 

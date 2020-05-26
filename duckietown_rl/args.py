@@ -20,6 +20,12 @@ def get_ddpg_args_train():
     parser.add_argument("--replay_buffer_max_size", default=10000, type=int)  # Maximum number of steps to keep in the replay buffer
     parser.add_argument("--log_file", default=None, type=str)  # Maximum number of steps to keep in the replay buffer
 
+    # Imitation
+    parser.add_argument("--warmup_epochs", default=0, type=int)  # Warms the RL model up by doing imitation learning for --warmup epochs
+    parser.add_argument("--warmup_episodes", default=10, type=int)  # Samples the IL expert for --warmup-episodes
+    parser.add_argument("--warmup_steps", default=500, type=int)  # Samples the IL expert for --warmup-episodes
+    parser.add_argument("--warmup_batch_size", default=64, type=int)  # Samples the IL expert for --warmup-episodes
+
     return parser.parse_args()
 
 

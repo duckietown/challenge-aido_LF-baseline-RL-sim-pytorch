@@ -20,10 +20,10 @@ class Conv2d():
 class Calculator():
     def __init__(self):
         self.convs = []
-        self.conv1 = Conv2d(3, 32, 8, stride=2)
-        self.conv2 = Conv2d(32, 32, 4, stride=2)
-        self.conv3 = Conv2d(32, 32, 4, stride=2)
-        self.conv4 = Conv2d(32, 32, 4, stride=1)
+        self.conv1 = Conv2d(3, 32, 4, stride=2)
+        self.conv2 = Conv2d(32, 32, 2, stride=2)
+        self.conv3 = Conv2d(32, 32, 2, stride=2)
+        self.conv4 = Conv2d(32, 32, 2, stride=1)
 
         self.convs = [self.conv1, self.conv2, self.conv3, self.conv4]
 
