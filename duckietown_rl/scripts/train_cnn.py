@@ -112,6 +112,8 @@ if args.warmup_epochs > 0:
 
     observations = []
     actions = []
+    rewards = []
+    dones = []
 
     # let's collect our samples
     for episode in range(0, args.warmup_episodes):
@@ -120,8 +122,12 @@ if args.warmup_epochs > 0:
             # use our 'expert' to predict the next action.
             action = expert.predict(None)
             observation, reward, done, info = env.step(action)
+
             observations.append(observation)
             actions.append(action)
+            rewards.append(reward)
+            dones.append(done)
+
             if done:
                 break
         env.reset()
