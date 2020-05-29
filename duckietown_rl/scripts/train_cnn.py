@@ -13,6 +13,7 @@ from ddpg import DDPG
 from torch import optim
 from utils import seed, evaluate_policy, ReplayBuffer
 
+from duckietown_rl.scripts.warmup import warmup
 from duckietown_rl.teacher import PurePursuitExpert
 from wrappers import NormalizeWrapper, ImgWrapper, \
     DtRewardWrapper, ActionWrapper, ResizeWrapper
@@ -78,12 +79,11 @@ if args.save_models and not os.path.exists("./pytorch_models"):
 env = launch_env()
 
 # Wrappers
-env = ResizeWrapper(env, ((120, 160, 3) if use_large else (64,64,3)))
+env = ResizeWrapper(env, ((120, 160, 3) if use_large else (64, 64, 3)))
 env = NormalizeWrapper(env)
-env = ImgWrapper(env) # to make the images from 160x120x3 into 3x160x120
+env = ImgWrapper(env)  # to make the images from 160x120x3 into 3x160x120
 env = ActionWrapper(env)
 env = DtRewardWrapper(env)
-
 
 # Set seeds
 seed(args.seed)
@@ -96,6 +96,9 @@ max_action = float(env.action_space.high[0])
 # Initialize policy
 policy = DDPG(state_dim, action_dim, max_action, net_type="cnn", use_large=use_large)
 
+warmup(policy, args, env, file_name)
+exit()
+
 import tracemalloc
 tracemalloc.start()
 def tracemalloc_ss():
@@ -103,82 +106,6 @@ def tracemalloc_ss():
     top_stats = snapshot.statistics('lineno')
     for stat in top_stats[:10]:
         print(stat)
-
-if args.warmup_epochs > 0:
-    # Lifted from https://github.com/duckietown/gym-duckietown/blob/master/learning/imitation/basic/train_imitation.py
-
-    # Create an imperfect demonstrator
-    expert = PurePursuitExpert(env=env)
-
-    observations = []
-    actions = []
-    rewards = []
-    dones = []
-
-    # let's collect our samples
-    for episode in range(0, args.warmup_episodes):
-        print("Starting episode", episode)
-        for steps in range(0, args.warmup_steps):
-            # use our 'expert' to predict the next action.
-            action = expert.predict(None)
-            observation, reward, done, info = env.step(action)
-
-            observations.append(observation)
-            actions.append(action)
-            rewards.append(reward)
-            dones.append(done)
-
-            if done:
-                break
-        env.reset()
-    env.close()
-
-    actions = np.clip(np.array(actions), -1, 1)
-    observations = np.array(observations)
-
-    model = policy.actor
-    # weight_decay is L2 regularization, helps avoid overfitting
-    optimizer = optim.SGD(
-        model.parameters(),
-        lr=0.0004,
-        weight_decay=1e-3
-    )
-
-    def all_warmup_batches(n=args.warmup_batch_size):
-        l = len(observations)
-
-        indices = []
-
-        for ndx in range(0, l, n):
-            indices.append(list(range(ndx,min(ndx + n, l))))
-
-        random.shuffle(indices)
-
-        for index in indices:
-            yield observations[np.array(index)], actions[np.array(index)]
-
-    #avg_loss = 0
-    for epoch in range(args.warmup_epochs):
-        print("Epoch:", epoch)
-        for obs_batch, act_batch in all_warmup_batches(args.warmup_batch_size):
-            optimizer.zero_grad()
-
-            batch_indices = np.random.randint(0, observations.shape[0], (args.warmup_batch_size))
-            obs_batch = torch.from_numpy(obs_batch).float().to(device)
-            act_batch = torch.from_numpy(act_batch).float().to(device)
-
-            model_actions = model(obs_batch)
-
-            loss = (model_actions - act_batch).norm(2).mean()
-            loss.backward()
-            optimizer.step()
-
-        #loss = loss.data[0]
-        #avg_loss = avg_loss * 0.995 + loss * 0.005
-
-    policy.actor_target = copy.deepcopy(model)
-    policy.save(file_name, directory="./pytorch_models")
-    exit()
 
 replay_buffer = ReplayBuffer(args.replay_buffer_max_size)
 

@@ -29,6 +29,29 @@ class ReplayBuffer(object):
             self.storage.pop(random.randrange(len(self.storage)))
             self.storage.append((state, next_state, action, reward, done))
 
+    def all_batches(self, batch_size=100, flat=False):
+        n = batch_size
+        l = len(self.storage)
+
+        indices = []
+
+        for ndx in range(0, l, n):
+            indices.append(list(range(ndx, min(ndx + n, l))))
+
+        random.shuffle(indices)
+
+        storage = np.array(self.storage)
+
+        for index in indices:
+            index = np.array(index)
+
+            obs = storage[index, 0]
+            new = storage[index, 1]
+            act = storage[index, 2]
+            rew = storage[index, 3]
+            don = storage[index, 4]
+
+            yield np.stack(obs), np.stack(new), np.stack(act), np.stack(rew).reshape(-1,1), np.stack(don).reshape(-1,1)
 
     def sample(self, batch_size=100, flat=True):
         ind = np.random.randint(0, len(self.storage), size=batch_size)

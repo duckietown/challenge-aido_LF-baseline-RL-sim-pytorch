@@ -1,9 +1,10 @@
 import gym
 import gym_duckietown
 from gym_duckietown.envs.duckietown_env import DuckietownLF
+from wrappers import NormalizeWrapper, ImgWrapper, \
+    DtRewardWrapper, ActionWrapper, ResizeWrapper
 
-
-def launch_env(id=None):
+def launch_env(id=None, use_large=False):
     env = None
     if id is None:
         from gym_duckietown.simulator import Simulator
