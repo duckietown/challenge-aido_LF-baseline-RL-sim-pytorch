@@ -47,16 +47,11 @@ def warmup(policy, args, env, file_name):
             obs = new_obs
 
     actor = policy.actor
-    # weight_decay is L2 regularization, helps avoid overfitting
-    actor_optimizer = optim.SGD(
-        actor.parameters(),
-        lr=0.0004,
-        weight_decay=1e-3
-    )
+    actor_optimizer = policy.actor_optimizer
 
     critic = policy.critic
     critic_target = policy.critic_target
-    critic_optimizer = torch.optim.Adam(critic.parameters())
+    critic_optimizer = policy.critic_optimizer
 
     """
     def all_warmup_batches(n=args.warmup_batch_size):
