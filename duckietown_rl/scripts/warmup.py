@@ -22,7 +22,7 @@ import torch.nn.functional as F
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def warmup(policy, args, env, file_name):
-    if args.warmup_epochs <= 0:
+    if not args.do_warmup:
         return policy
     # Lifted from https://github.com/duckietown/gym-duckietown/blob/master/learning/imitation/basic/train_imitation.py
 

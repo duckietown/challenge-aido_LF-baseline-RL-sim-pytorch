@@ -69,7 +69,7 @@ class ActionWrapper(gym.ActionWrapper):
         super(ActionWrapper, self).__init__(env)
 
     def action(self, action):
-        action_ = [action[0], action[1]]
+        action_ = [0.8*action[0], action[1]]
         return action_
 
 

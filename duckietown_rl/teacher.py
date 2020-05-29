@@ -1,7 +1,7 @@
 import numpy as np
 
 class PurePursuitExpert:
-    def __init__(self, env, ref_velocity=0.8, position_threshold=0.04,
+    def __init__(self, env, ref_velocity=1, position_threshold=0.04,
                  following_distance=0.4, gain=10, max_iterations=1000):
         self.env = env.unwrapped
         self.following_distance = following_distance
