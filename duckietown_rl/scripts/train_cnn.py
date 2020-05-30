@@ -83,7 +83,7 @@ env = ResizeWrapper(env, ((120, 160, 3) if use_large else (64, 64, 3)))
 env = NormalizeWrapper(env)
 env = ImgWrapper(env)  # to make the images from 160x120x3 into 3x160x120
 env = ActionWrapper(env)
-env = DtRewardWrapper(env)
+#env = DtRewardWrapper(env)
 
 # Set seeds
 seed(args.seed)
@@ -162,8 +162,8 @@ while total_timesteps < args.max_timesteps:
 
     # Perform action
     new_obs, reward, done, _ = env.step(action)
-    if action[0] < 0.001 or action[1] < 0.001:
-        reward = 0
+    if action[0] < 0.001:
+        reward = -500
 
     if episode_timesteps >= args.env_timesteps:
         done = True
