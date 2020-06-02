@@ -1,8 +1,8 @@
 import numpy as np
 
 class PurePursuitExpert:
-    def __init__(self, env, ref_velocity=1, position_threshold=0.04,
-                 following_distance=0.4, gain=10, max_iterations=1000):
+    def __init__(self, env, ref_velocity=1, position_threshold=0.1,
+                 following_distance=250, gain=25, max_iterations=1000):
         self.env = env.unwrapped
         self.following_distance = following_distance
         self.max_iterations = max_iterations
@@ -13,18 +13,10 @@ class PurePursuitExpert:
     def predict(self, observation):  # we don't really care about the observation for this implementation
         closest_point, closest_tangent = self.env.closest_curve_point(self.env.cur_pos, self.env.cur_angle)
 
-        """
         my_dir = self.env.get_dir_vec()
-        def angle(v1=my_dir, v2=closest_tangent):
-            x1 = v1[0]
-            y1 = v1[2]
-            x2 = v2[0]
-            y2 = v2[2]
 
-            return np.arctan2(y2, x2) - np.arctan2(y1, x1)
-        if np.abs(angle()) < self.position_threshold:
-            return self.ref_velocity, 0
-        """
+        if np.abs(angle(my_dir, closest_tangent)) < self.position_threshold:
+            return [self.ref_velocity,0]
 
         iterations = 0
         lookup_distance = self.following_distance
@@ -67,24 +59,6 @@ class StanleyExpert:
 
         my_dir = self.env.get_dir_vec()
 
-        def angle(v1,v2):
-            x1 = v1[0]
-            y1 = v1[2]
-            x2 = v2[0]
-            y2 = v2[2]
-
-            return np.arctan2(y2, x2) - np.arctan2(y1, x1)
-
-            cosang = np.dot(v1, v2)
-            sinang = np.linalg.norm(np.cross(v1, v2))
-            return np.arctan2(sinang, cosang)
-
-            u1 = v1 / np.linalg.norm(v1)
-            u2 = v2 / np.linalg.norm(v2)
-
-            dot_product = np.dot(u1, u2)
-            return np.arccos(np.clip(dot_product, -1, 1))
-
         new_angle = angle(my_dir, closest_tangent)
         #return self.ref_velocity, new_angle
 
@@ -110,3 +84,21 @@ class StanleyExpert:
         new_angle += angle(closest_point, (curve_point+[smol, smol, smol]))
         print(new_angle)
         return self.ref_velocity, new_angle
+
+def angle(v1,v2):
+    x1 = v1[0]
+    y1 = v1[2]
+    x2 = v2[0]
+    y2 = v2[2]
+
+    return np.arctan2(y2, x2) - np.arctan2(y1, x1)
+
+    cosang = np.dot(v1, v2)
+    sinang = np.linalg.norm(np.cross(v1, v2))
+    return np.arctan2(sinang, cosang)
+
+    u1 = v1 / np.linalg.norm(v1)
+    u2 = v2 / np.linalg.norm(v2)
+
+    dot_product = np.dot(u1, u2)
+    return np.arccos(np.clip(dot_product, -1, 1))

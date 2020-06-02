@@ -97,6 +97,7 @@ max_action = float(env.action_space.high[0])
 policy = DDPG(state_dim, action_dim, max_action, net_type="cnn", use_large=use_large)
 
 policy = warmup(policy, args, env, file_name)
+exit()
 
 import tracemalloc
 tracemalloc.start()
