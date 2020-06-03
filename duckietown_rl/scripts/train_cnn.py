@@ -15,6 +15,7 @@ from utils import seed, evaluate_policy, ReplayBuffer
 
 from duckietown_rl.scripts.warmup import warmup
 from duckietown_rl.teacher import PurePursuitExpert
+from duckietown_rl.wrappers import FilterWrapper
 from wrappers import NormalizeWrapper, ImgWrapper, \
     DtRewardWrapper, ActionWrapper, ResizeWrapper
 from env import launch_env
@@ -80,10 +81,11 @@ env = launch_env()
 
 # Wrappers
 env = ResizeWrapper(env, ((120, 160, 3) if use_large else (64, 64, 3)))
+#env = FilterWrapper(env)
 env = NormalizeWrapper(env)
 env = ImgWrapper(env)  # to make the images from 160x120x3 into 3x160x120
 env = ActionWrapper(env)
-#env = DtRewardWrapper(env)
+env = DtRewardWrapper(env)
 
 # Set seeds
 seed(args.seed)
@@ -97,7 +99,6 @@ max_action = float(env.action_space.high[0])
 policy = DDPG(state_dim, action_dim, max_action, net_type="cnn", use_large=use_large)
 
 policy = warmup(policy, args, env, file_name)
-exit()
 
 import tracemalloc
 tracemalloc.start()

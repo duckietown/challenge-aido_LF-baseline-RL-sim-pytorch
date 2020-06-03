@@ -1,3 +1,4 @@
+import cv2
 import gym
 from gym import spaces
 import numpy as np
@@ -16,6 +17,32 @@ class ResizeWrapper(gym.ObservationWrapper):
 
     def observation(self, observation):
         from PIL import Image
+        return np.array(Image.fromarray(observation).resize(self.shape[0:2]))
+
+class FilterWrapper(gym.ObservationWrapper):
+    def __init__(self, env=None):
+        super(FilterWrapper, self).__init__(env)
+
+    def display(self, img1, img2):
+        img2 = cv2.cvtColor(img2, cv2.COLOR_HSV2BGR)
+        numpy_horizontal = np.hstack((img1, img2))
+        cv2.imshow('Horizontal', numpy_horizontal)
+
+    def observation(self, observation):
+        img = cv2.cvtColor(observation, cv2.COLOR_BGR2RGB)
+        temp = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+        yellow_mask = cv2.inRange(temp, (20, 100, 100), (40, 255, 255))
+        white_mask = cv2.inRange(temp, (0, 0, 100), (150, 50, 255))
+        mask = cv2.bitwise_or(yellow_mask, white_mask)
+        temp = cv2.bitwise_and(temp, temp, mask=mask)
+
+        self.display(img, temp)
+        cv2.waitKey()
+
+        from PIL import Image
+        Image.fromarray(observation).show()
+
         return np.array(Image.fromarray(observation).resize(self.shape[0:2]))
     
 
@@ -54,12 +81,7 @@ class DtRewardWrapper(gym.RewardWrapper):
 
     def reward(self, reward):
         if reward == -1000:
-            reward = -10
-        elif reward > 0:
-            reward += 10
-        else:
-            reward += 4
-
+            reward = -10000
         return reward
 
 
