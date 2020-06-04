@@ -21,18 +21,19 @@ import torch.nn.functional as F
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def warmup(policy, args, env, file_name):
+def warmup(policy, replay_buffer, args, env, file_name):
     if not args.do_warmup:
-        return policy
+        return policy, replay_buffer
     # Lifted from https://github.com/duckietown/gym-duckietown/blob/master/learning/imitation/basic/train_imitation.py
 
     # Create an imperfect demonstrator
     expert = PurePursuitExpert(env=env)
-    replay_buffer = ReplayBuffer(np.inf)
 
     # let's collect our samples
-    for episode in range(0, args.warmup_episodes):
+    episode = 0
+    while len(replay_buffer.storage) < replay_buffer.max_size:
         print("Starting episode", episode)
+        episode += 1
         obs = env.reset()
         done = False
         for steps in range(0, args.warmup_steps):
@@ -100,4 +101,4 @@ def warmup(policy, args, env, file_name):
 
     policy.actor_target = copy.deepcopy(actor)
     policy.save(file_name, directory="./pytorch_models")
-    return policy
+    return policy, replay_buffer

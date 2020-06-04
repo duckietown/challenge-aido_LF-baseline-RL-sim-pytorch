@@ -240,7 +240,7 @@ class DDPG(object):
 
         state = state.detach()
         action = self.actor(state).cpu().data.numpy().flatten()
-        print(action)
+        #print(action)
         return action
 
     def train(self, replay_buffer, iterations, batch_size=64, discount=0.99, tau=0.001):

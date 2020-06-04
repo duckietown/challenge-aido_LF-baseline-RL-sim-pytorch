@@ -26,7 +26,7 @@ def get_ddpg_args_train():
     parser.add_argument("--noise_clip", default=0.5, type=float)  # Range to clip target policy noise
     parser.add_argument("--policy_freq", default=2, type=int)  # Frequency of delayed policy updates
     parser.add_argument("--env_timesteps", default=500, type=int)  # Frequency of delayed policy updates
-    parser.add_argument("--replay_buffer_max_size", default=10000, type=int)  # Maximum number of steps to keep in the replay buffer
+    parser.add_argument("--replay_buffer_max_size", default=20000, type=int)  # Maximum number of steps to keep in the replay buffer
     parser.add_argument("--log_file", default=None, type=str)  # Maximum number of steps to keep in the replay buffer
 
     # Imitation

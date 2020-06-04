@@ -53,7 +53,7 @@ class ReplayBuffer(object):
 
             yield np.stack(obs), np.stack(new), np.stack(act), np.stack(rew).reshape(-1,1), np.stack(don).reshape(-1,1)
 
-    def sample(self, batch_size=100, flat=True):
+    def sample(self, batch_size=100, flat=True, as_tuple=False):
         ind = np.random.randint(0, len(self.storage), size=batch_size)
         states, next_states, actions, rewards, dones = [], [], [], [], []
 
@@ -71,13 +71,16 @@ class ReplayBuffer(object):
             dones.append(np.array(done, copy=False))
 
         # state_sample, action_sample, next_state_sample, reward_sample, done_sample
-        return {
-            "state": np.stack(states),
-            "next_state": np.stack(next_states),
-            "action": np.stack(actions),
-            "reward": np.stack(rewards).reshape(-1,1),
-            "done": np.stack(dones).reshape(-1,1)
-        }
+        if not as_tuple:
+            return {
+                "state": np.stack(states),
+                "next_state": np.stack(next_states),
+                "action": np.stack(actions),
+                "reward": np.stack(rewards).reshape(-1,1),
+                "done": np.stack(dones).reshape(-1,1)
+            }
+        else:
+            return np.stack(states),np.stack(next_states),np.stack(actions),np.stack(rewards).reshape(-1,1),np.stack(dones).reshape(-1,1)
 
 
 def evaluate_policy(env, policy, eval_episodes=10, max_timesteps=500):
