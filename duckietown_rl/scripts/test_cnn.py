@@ -4,6 +4,8 @@ import torch
 from ddpg import DDPG
 from args import get_ddpg_args_test
 from utils import evaluate_policy
+
+from duckietown_rl.teacher import PurePursuitExpert, StanleyExpert
 from wrappers import NormalizeWrapper, ImgWrapper, \
     DtRewardWrapper, ActionWrapper, ResizeWrapper
 from env import launch_env
@@ -36,9 +38,7 @@ action_dim = env.action_space.shape[0]
 max_action = float(env.action_space.high[0])
 
 # Initialize policy
-policy = DDPG(state_dim, action_dim, max_action, net_type="cnn", use_large=use_large)
-
-policy.load(file_name, directory="./pytorch_models")
+policy = DDPG(state_dim, action_dim, max_action, net_type="cnn", use_large=use_large); policy.load(file_name, directory="./pytorch_models")
 
 with torch.no_grad():
     while True:

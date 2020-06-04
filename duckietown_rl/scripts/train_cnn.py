@@ -1,3 +1,4 @@
+import copy
 import pickle
 import random
 import resource
@@ -9,7 +10,12 @@ import os
 
 from args import get_ddpg_args_train
 from ddpg import DDPG
+from torch import optim
 from utils import seed, evaluate_policy, ReplayBuffer
+
+from duckietown_rl.scripts.warmup import warmup
+from duckietown_rl.teacher import PurePursuitExpert
+from duckietown_rl.wrappers import FilterWrapper
 from wrappers import NormalizeWrapper, ImgWrapper, \
     DtRewardWrapper, ActionWrapper, ResizeWrapper
 from env import launch_env
@@ -74,12 +80,12 @@ if args.save_models and not os.path.exists("./pytorch_models"):
 env = launch_env()
 
 # Wrappers
-env = ResizeWrapper(env, ((120, 160, 3) if use_large else (64,64,3)))
+env = ResizeWrapper(env, ((120, 160, 3) if use_large else (64, 64, 3)))
+#env = FilterWrapper(env)
 env = NormalizeWrapper(env)
-env = ImgWrapper(env) # to make the images from 160x120x3 into 3x160x120
+env = ImgWrapper(env)  # to make the images from 160x120x3 into 3x160x120
 env = ActionWrapper(env)
 env = DtRewardWrapper(env)
-
 
 # Set seeds
 seed(args.seed)
@@ -93,6 +99,16 @@ max_action = float(env.action_space.high[0])
 policy = DDPG(state_dim, action_dim, max_action, net_type="cnn", use_large=use_large)
 
 replay_buffer = ReplayBuffer(args.replay_buffer_max_size)
+policy, replay_buffer = warmup(policy, replay_buffer, args, env, file_name)
+
+import tracemalloc
+tracemalloc.start()
+def tracemalloc_ss():
+    snapshot = tracemalloc.take_snapshot()
+    top_stats = snapshot.statistics('lineno')
+    for stat in top_stats[:10]:
+        print(stat)
+
 
 # Evaluate untrained policy
 evaluations= [evaluate_policy(env, policy)]
@@ -104,14 +120,6 @@ done = True
 episode_reward = None
 env_counter = 0
 
-import tracemalloc
-tracemalloc.start()
-def tracemalloc_ss():
-    snapshot = tracemalloc.take_snapshot()
-    top_stats = snapshot.statistics('lineno')
-    for stat in top_stats[:10]:
-        print(stat)
-
 while total_timesteps < args.max_timesteps:
 
     if done:
@@ -120,10 +128,10 @@ while total_timesteps < args.max_timesteps:
             print("Replay buffer length is ", len(replay_buffer.storage))   #TODO rm
             print(("Total T: %d Episode Num: %d Episode T: %d Reward: %f") % (
                 total_timesteps, episode_num, episode_timesteps, episode_reward))
-            mem_logging()
-            with mem_log():
-                policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
-            tracemalloc_ss()
+            #mem_logging()
+            #with mem_log():
+            #    policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
+            #tracemalloc_ss()
 
         # Evaluate episode
         if timesteps_since_eval >= args.eval_freq:
@@ -143,7 +151,7 @@ while total_timesteps < args.max_timesteps:
         episode_num += 1
 
     # Select action randomly or according to policy
-    if total_timesteps < args.start_timesteps:
+    if not args.do_warmup and total_timesteps < args.start_timesteps:
         action = env.action_space.sample()
     else:
         action = policy.predict(np.array(obs))
@@ -156,8 +164,8 @@ while total_timesteps < args.max_timesteps:
 
     # Perform action
     new_obs, reward, done, _ = env.step(action)
-    if action[0] < 0.001 or action[1] < 0.001:
-        reward = 0
+    if action[0] < 0.001:
+        reward = -500
 
     if episode_timesteps >= args.env_timesteps:
         done = True

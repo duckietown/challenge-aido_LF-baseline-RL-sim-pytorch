@@ -39,25 +39,46 @@ class ActorCNN(nn.Module):
         super(ActorCNN, self).__init__()
 
         # ONLY TRU IN CASE OF DUCKIETOWN:
-        flat_size = 32 * 9 * 14 if use_large else 32 * 2 * 2
+        if use_large:
+            flat_size = 32 * 9 * 14
 
-        self.lr = nn.LeakyReLU()
-        self.tanh = nn.Tanh()
-        self.sigm = nn.Sigmoid()
+            self.lr = nn.LeakyReLU()
+            self.tanh = nn.Tanh()
+            self.sigm = nn.Sigmoid()
 
-        self.conv1 = nn.Conv2d(3, 32, 8, stride=2)
-        self.conv2 = nn.Conv2d(32, 32, 4, stride=2)
-        self.conv3 = nn.Conv2d(32, 32, 4, stride=2)
-        self.conv4 = nn.Conv2d(32, 32, 4, stride=1)
+            self.conv1 = nn.Conv2d(3, 32, 8, stride=2)
+            self.conv2 = nn.Conv2d(32, 32, 4, stride=2)
+            self.conv3 = nn.Conv2d(32, 32, 4, stride=2)
+            self.conv4 = nn.Conv2d(32, 32, 4, stride=1)
 
-        self.bn1 = nn.BatchNorm2d(32)
-        self.bn2 = nn.BatchNorm2d(32)
-        self.bn3 = nn.BatchNorm2d(32)
-        self.bn4 = nn.BatchNorm2d(32)
+            self.bn1 = nn.BatchNorm2d(32)
+            self.bn2 = nn.BatchNorm2d(32)
+            self.bn3 = nn.BatchNorm2d(32)
+            self.bn4 = nn.BatchNorm2d(32)
 
-        self.dropout = nn.Dropout(.5)
+            self.dropout = nn.Dropout(.5)
 
-        self.lin1 = nn.Linear(flat_size, 512)
+            self.lin1 = nn.Linear(flat_size, 512)
+        else:
+            flat_size = 32 * 6 * 6
+
+            self.lr = nn.LeakyReLU()
+            self.tanh = nn.Tanh()
+            self.sigm = nn.Sigmoid()
+
+            self.conv1 = nn.Conv2d(3, 32, 4, stride=2)
+            self.conv2 = nn.Conv2d(32, 32, 2, stride=2)
+            self.conv3 = nn.Conv2d(32, 32, 2, stride=2)
+            self.conv4 = nn.Conv2d(32, 32, 2, stride=1)
+
+            self.bn1 = nn.BatchNorm2d(32)
+            self.bn2 = nn.BatchNorm2d(32)
+            self.bn3 = nn.BatchNorm2d(32)
+            self.bn4 = nn.BatchNorm2d(32)
+
+            self.dropout = nn.Dropout(.5)
+
+            self.lin1 = nn.Linear(flat_size, 512)
         self.lin2 = nn.Linear(512, action_dim)
 
         self.max_action = max_action
@@ -121,23 +142,46 @@ class CriticCNN(nn.Module):
     def __init__(self, action_dim, use_large=True):
         super(CriticCNN, self).__init__()
 
-        flat_size = 32 * 9 * 14 if use_large else 32 * 2 * 2
+        if use_large:
+            flat_size = 32 * 9 * 14
 
-        self.lr = nn.LeakyReLU()
+            self.lr = nn.LeakyReLU()
+            self.tanh = nn.Tanh()
+            self.sigm = nn.Sigmoid()
 
-        self.conv1 = nn.Conv2d(3, 32, 8, stride=2)
-        self.conv2 = nn.Conv2d(32, 32, 4, stride=2)
-        self.conv3 = nn.Conv2d(32, 32, 4, stride=2)
-        self.conv4 = nn.Conv2d(32, 32, 4, stride=1)
+            self.conv1 = nn.Conv2d(3, 32, 8, stride=2)
+            self.conv2 = nn.Conv2d(32, 32, 4, stride=2)
+            self.conv3 = nn.Conv2d(32, 32, 4, stride=2)
+            self.conv4 = nn.Conv2d(32, 32, 4, stride=1)
 
-        self.bn1 = nn.BatchNorm2d(32)
-        self.bn2 = nn.BatchNorm2d(32)
-        self.bn3 = nn.BatchNorm2d(32)
-        self.bn4 = nn.BatchNorm2d(32)
+            self.bn1 = nn.BatchNorm2d(32)
+            self.bn2 = nn.BatchNorm2d(32)
+            self.bn3 = nn.BatchNorm2d(32)
+            self.bn4 = nn.BatchNorm2d(32)
 
-        self.dropout = nn.Dropout(.5)
+            self.dropout = nn.Dropout(.5)
 
-        self.lin1 = nn.Linear(flat_size, 256)
+            self.lin1 = nn.Linear(flat_size, 256)
+        else:
+            flat_size = 32 * 6 * 6
+
+            self.lr = nn.LeakyReLU()
+            self.tanh = nn.Tanh()
+            self.sigm = nn.Sigmoid()
+
+            self.conv1 = nn.Conv2d(3, 32, 4, stride=2)
+            self.conv2 = nn.Conv2d(32, 32, 2, stride=2)
+            self.conv3 = nn.Conv2d(32, 32, 2, stride=2)
+            self.conv4 = nn.Conv2d(32, 32, 2, stride=1)
+
+            self.bn1 = nn.BatchNorm2d(32)
+            self.bn2 = nn.BatchNorm2d(32)
+            self.bn3 = nn.BatchNorm2d(32)
+            self.bn4 = nn.BatchNorm2d(32)
+
+            self.dropout = nn.Dropout(.5)
+
+            self.lin1 = nn.Linear(flat_size, 256)
         self.lin2 = nn.Linear(256 + action_dim, 128)
         self.lin3 = nn.Linear(128, 1)
 
@@ -196,7 +240,7 @@ class DDPG(object):
 
         state = state.detach()
         action = self.actor(state).cpu().data.numpy().flatten()
-        print(action)
+        #print(action)
         return action
 
     def train(self, replay_buffer, iterations, batch_size=64, discount=0.99, tau=0.001):
