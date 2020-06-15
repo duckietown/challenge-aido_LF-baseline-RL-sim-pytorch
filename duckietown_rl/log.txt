@@ -331,3 +331,23 @@ Replay buffer length is  887
 Total T: 887 Episode Num: 3 Episode T: 501 Reward: 489.219194
 Replay buffer length is  1388
 Total T: 1388 Episode Num: 4 Episode T: 501 Reward: 443.091973
+Replay buffer length is  1514
+Total T: 1514 Episode Num: 5 Episode T: 126 Reward: 180.237030
+Replay buffer length is  1726
+Total T: 1726 Episode Num: 6 Episode T: 212 Reward: 140.887144
+Replay buffer length is  1809
+Total T: 1809 Episode Num: 7 Episode T: 83 Reward: 57.186361
+Replay buffer length is  1843
+Total T: 1843 Episode Num: 8 Episode T: 34 Reward: 59.522470
+Replay buffer length is  1974
+Total T: 1974 Episode Num: 9 Episode T: 131 Reward: 73.643698
+Replay buffer length is  2337
+Total T: 2337 Episode Num: 10 Episode T: 363 Reward: 278.534652
+Replay buffer length is  2706
+Total T: 2706 Episode Num: 11 Episode T: 369 Reward: 378.730825
+Replay buffer length is  2985
+Total T: 2985 Episode Num: 12 Episode T: 279 Reward: 411.319810
+Replay buffer length is  3057
+Total T: 3057 Episode Num: 13 Episode T: 72 Reward: 23.498414
+Replay buffer length is  3558
+Total T: 3558 Episode Num: 14 Episode T: 501 Reward: 522.799395
