@@ -45,7 +45,7 @@ if args.save_models and not os.path.exists("./pytorch_models"):
 env = launch_env()
 
 # Wrappers
-env = ResizeWrapper(env)
+env = ResizeWrapper(env)    # FIXME if you want to use larger images, change the shape in that wrapper + the flatsize in the DDPG file (also marked by a FIXME)
 env = NormalizeWrapper(env)
 env = ImgWrapper(env) # to make the images from 160x120x3 into 3x160x120
 env = ActionWrapper(env)
@@ -116,7 +116,7 @@ while total_timesteps < args.max_timesteps:
 
     # Perform action
     new_obs, reward, done, _ = env.step(action)
-    if action[0] < 0.001 or action[1] < 0.001:
+    if action[0] < 0.001:   #Penalise slow actions: helps the bot to figure out that going straight > turning in circles
         reward = 0
 
     if episode_timesteps >= args.env_timesteps:
