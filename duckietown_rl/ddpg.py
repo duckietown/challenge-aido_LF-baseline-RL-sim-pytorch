@@ -81,19 +81,7 @@ class ActorCNN(nn.Module):
         # because we don't want our duckie to go backwards
         x = self.lin2(x)
 
-        # Third fix
-        #x[:, 0] = self.sigm(x[:, 0])
-        #x[:, 1] = self.sigm(x[:, 1])
-
-        #Second fix: works okay, but the bot learns to go backwards, which is bad
-        #x[:, 0] = self.tanh(x[:, 0])
-        #x[:, 1] = self.tanh(x[:, 1])
-
-        # First fix
-        #x[:, 0] = self.max_action * self.sigm(x[:, 0])  # because we don't want the duckie to go backwards
-        #x[:, 1] = self.max_action * self.sigm(x[:, 1])   # Charlie May 2020 https://github.com/duckietown/gym-duckietown/issues/198
-
-        # Original
+        # If we want the duckie to go backwards, change to two tanh instead of one sigm and one tanh
         x[:, 0] = self.max_action * self.sigm(x[:, 0])  # because we don't want the duckie to go backwards
         x[:, 1] = self.tanh(x[:, 1])
 
