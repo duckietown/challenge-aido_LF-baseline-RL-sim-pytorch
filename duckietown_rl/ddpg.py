@@ -82,8 +82,8 @@ class ActorCNN(nn.Module):
         x = self.lin2(x)
 
         # Third fix
-        x[:, 0] = self.sigm(x[:, 0])
-        x[:, 1] = self.sigm(x[:, 1])
+        #x[:, 0] = self.sigm(x[:, 0])
+        #x[:, 1] = self.sigm(x[:, 1])
 
         #Second fix: works okay, but the bot learns to go backwards, which is bad
         #x[:, 0] = self.tanh(x[:, 0])
@@ -94,8 +94,8 @@ class ActorCNN(nn.Module):
         #x[:, 1] = self.max_action * self.sigm(x[:, 1])   # Charlie May 2020 https://github.com/duckietown/gym-duckietown/issues/198
 
         # Original
-        #x[:, 0] = self.max_action * self.sigm(x[:, 0])  # because we don't want the duckie to go backwards
-        #x[:, 1] = self.tanh(x[:, 1])
+        x[:, 0] = self.max_action * self.sigm(x[:, 0])  # because we don't want the duckie to go backwards
+        x[:, 1] = self.tanh(x[:, 1])
 
         return x
 
@@ -196,7 +196,7 @@ class DDPG(object):
 
         state = state.detach()
         action = self.actor(state).cpu().data.numpy().flatten()
-        print(action)
+
         return action
 
     def train(self, replay_buffer, iterations, batch_size=64, discount=0.99, tau=0.001):
