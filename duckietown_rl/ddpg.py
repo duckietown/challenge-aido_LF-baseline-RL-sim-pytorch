@@ -39,7 +39,7 @@ class ActorCNN(nn.Module):
         super(ActorCNN, self).__init__()
 
         # ONLY TRU IN CASE OF DUCKIETOWN:
-        flat_size = 32 * 2 * 2  # FIXME If large change to flat_size = 32 * 9 * 14
+        flat_size = 32 * 9 * 14
 
         self.lr = nn.LeakyReLU()
         self.tanh = nn.Tanh()
@@ -74,10 +74,6 @@ class ActorCNN(nn.Module):
         x = self.dropout(x)
         x = self.lr(self.lin1(x))
 
-        # this is the vanilla implementation
-        # but we're using a slightly different one
-        # x = self.max_action * self.tanh(sel f.lin2(x))
-
         # because we don't want our duckie to go backwards
         x = self.lin2(x)
 
@@ -109,7 +105,7 @@ class CriticCNN(nn.Module):
     def __init__(self, action_dim):
         super(CriticCNN, self).__init__()
 
-        flat_size = 32 * 2 * 2  # FIXME If large change to flat_size = 32 * 9 * 14
+        flat_size = 32 * 9 * 14
 
         self.lr = nn.LeakyReLU()
 
