@@ -38,16 +38,20 @@ policy = DDPG(state_dim, action_dim, max_action, net_type="cnn")
 
 policy.load(file_name, directory="./pytorch_models")
 
+cutoff = 256
+
 with torch.no_grad():
     while True:
         obs = env.reset()
         env.render()
         rewards = []
+        steps = 0
         while True:
             action = policy.predict(np.array(obs))
             obs, rew, done, misc = env.step(action)
             rewards.append(rew)
             env.render()
-            if done:
+            steps += 1
+            if done or steps >= cutoff:
                 break
         print ("mean episode reward:",np.mean(rewards))
