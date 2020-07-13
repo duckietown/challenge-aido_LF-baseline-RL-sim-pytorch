@@ -67,16 +67,17 @@ class ActorCNN(nn.Module):
         x = self.bn2(self.lr(self.conv2(x)))
         x = self.bn3(self.lr(self.conv3(x)))
         x = self.bn4(self.lr(self.conv4(x)))
-        x = x.view(x.size(0), -1)  # flatten
+        try:
+            x = x.view(x.size(0), -1)  # flatten
+        except RuntimeError:
+            x = x.reshape(x.size(0), -1)
         x = self.dropout(x)
         x = self.lr(self.lin1(x))
 
-        # this is the vanilla implementation
-        # but we're using a slightly different one
-        # x = self.max_action * self.tanh(self.lin2(x))
-
         # because we don't want our duckie to go backwards
         x = self.lin2(x)
+
+        # If we want the duckie to go backwards, change to two tanh instead of one sigm and one tanh
         x[:, 0] = self.max_action * self.sigm(x[:, 0])  # because we don't want the duckie to go backwards
         x[:, 1] = self.tanh(x[:, 1])
 
@@ -129,7 +130,10 @@ class CriticCNN(nn.Module):
         x = self.bn2(self.lr(self.conv2(x)))
         x = self.bn3(self.lr(self.conv3(x)))
         x = self.bn4(self.lr(self.conv4(x)))
-        x = x.view(x.size(0), -1)  # flatten
+        try:
+            x = x.view(x.size(0), -1)  # flatten
+        except RuntimeError:
+            x = x.reshape(x.size(0), -1)
         x = self.lr(self.lin1(x))
         x = self.lr(self.lin2(torch.cat([x, actions], 1)))  # c
         x = self.lin3(x)
@@ -165,10 +169,6 @@ class DDPG(object):
         self.critic_target.load_state_dict(self.critic.state_dict())
         self.critic_optimizer = torch.optim.Adam(self.critic.parameters())
 
-    def close(self):
-        # TODO: release resources
-        pass
-
     def predict(self, state):
         # just making sure the state has the correct format, otherwise the prediction doesn't work
         assert state.shape[0] == 3
@@ -177,7 +177,11 @@ class DDPG(object):
             state = torch.FloatTensor(state.reshape(1, -1)).to(device)
         else:
             state = torch.FloatTensor(np.expand_dims(state, axis=0)).to(device)
-        return self.actor(state).cpu().data.numpy().flatten()
+
+        state = state.detach()
+        action = self.actor(state).cpu().data.numpy().flatten()
+
+        return action
 
     def train(self, replay_buffer, iterations, batch_size=64, discount=0.99, tau=0.001):
 
@@ -225,12 +229,6 @@ class DDPG(object):
         torch.save(self.actor.state_dict(), '{}/{}_actor.pth'.format(directory, filename))
         torch.save(self.critic.state_dict(), '{}/{}_critic.pth'.format(directory, filename))
 
-    def load(self, filename, directory, for_inference=False):
+    def load(self, filename, directory):
         self.actor.load_state_dict(torch.load('{}/{}_actor.pth'.format(directory, filename), map_location=device))
         self.critic.load_state_dict(torch.load('{}/{}_critic.pth'.format(directory, filename), map_location=device))
-        if for_inference:
-            # If we're not learning anymore, set model layers to
-            # test mode (this disables dropout and changes batchnorm).
-            # This does NOT affect autograd.
-            self.actor.eval()
-            self.critic.eval()

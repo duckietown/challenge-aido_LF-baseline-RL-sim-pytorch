@@ -11,7 +11,7 @@ from args import get_ddpg_args_train
 from ddpg import DDPG
 from utils import seed, evaluate_policy, ReplayBuffer
 from wrappers import NormalizeWrapper, ImgWrapper, \
-    DtRewardWrapper, ActionWrapper, ResizeWrapper
+    DtRewardWrapper, ActionWrapper, ResizeWrapper, SteeringToWheelVelWrapper
 from env import launch_env
 
 policy_name = "DDPG"
@@ -50,6 +50,7 @@ env = NormalizeWrapper(env)
 env = ImgWrapper(env) # to make the images from 160x120x3 into 3x160x120
 env = ActionWrapper(env)
 env = DtRewardWrapper(env)
+env = SteeringToWheelVelWrapper(env)
 
 
 # Set seeds
