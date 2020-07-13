@@ -21,7 +21,6 @@ COPY wrappers.py /workspace
 # we make the workspace our working directory
 WORKDIR /workspace
 
-ENV DISABLE_CONTRACTS=1
 
 # let's see what you've got there...
 CMD python solution.py
