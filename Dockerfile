@@ -1,15 +1,23 @@
 # Definition of Submission container
+ARG AIDO_REGISTRY
 
-FROM duckietown/challenge-aido_lf-template-pytorch:daffy
+
+
+FROM ${AIDO_REGISTRY}/duckietown/challenge-aido_lf-template-pytorch:daffy
 
 
 # let's create our workspace, we don't want to clutter the container
 RUN rm -r /workspace; mkdir /workspace
 
+ARG PIP_INDEX_URL
+ENV PIP_INDEX_URL=${PIP_INDEX_URL}
+RUN echo PIP_INDEX_URL=${PIP_INDEX_URL}
+
+
 # here, we install the requirements, some requirements come by default
 # you can add more if you need to in requirements.txt
-COPY requirements.txt /workspace
-RUN pip install --use-feature=2020-resolver -r /workspace/requirements.txt
+COPY requirements.* ./
+RUN pip install --use-feature=2020-resolver -r requirements.resolved
 
 # let's copy all our solution files to our workspace
 # if you have more file use the COPY command to move them to the workspace

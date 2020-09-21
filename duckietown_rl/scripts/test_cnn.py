@@ -1,13 +1,10 @@
-import gym
-import gym_duckietown
-import torch
-from ddpg import DDPG
-from args import get_ddpg_args_test
-from utils import evaluate_policy
-from wrappers import NormalizeWrapper, ImgWrapper, \
-    DtRewardWrapper, ActionWrapper, ResizeWrapper
-from env import launch_env
 import numpy as np
+import torch
+from args import get_ddpg_args_test
+from ddpg import DDPG
+from env import launch_env
+
+from wrappers import ActionWrapper, ImgWrapper, NormalizeWrapper, ResizeWrapper
 
 policy_name = "DDPG"
 
@@ -25,7 +22,7 @@ env = launch_env()
 # Wrappers
 env = ResizeWrapper(env)
 env = NormalizeWrapper(env)
-env = ImgWrapper(env) # to make the images from 160x120x3 into 3x160x120
+env = ImgWrapper(env)  # to make the images from 160x120x3 into 3x160x120
 env = ActionWrapper(env)
 # env = DtRewardWrapper(env) # not during testing
 
@@ -50,4 +47,4 @@ with torch.no_grad():
             env.render()
             if done:
                 break
-        print ("mean episode reward:",np.mean(rewards))
+        print("mean episode reward:", np.mean(rewards))

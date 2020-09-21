@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-from dataclasses import dataclass
-from typing import Tuple
+
+import io
 
 import numpy as np
+from PIL import Image
 
-from aido_schemas import EpisodeStart, protocol_agent_duckiebot1, PWMCommands, Duckiebot1Commands, LEDSCommands, RGB, \
-    wrap_direct, Context, Duckiebot1Observations, JPGImage
-
+from aido_schemas import (Context, Duckiebot1Commands, Duckiebot1Observations, EpisodeStart, JPGImage,
+                          LEDSCommands, protocol_agent_duckiebot1, PWMCommands, RGB, wrap_direct)
 from model import DDPG
 from wrappers import DTPytorchWrapper
 
@@ -57,14 +57,13 @@ class PytorchRLBaseline:
 
 def jpg2rgb(image_data: bytes) -> np.ndarray:
     """ Reads JPG bytes as RGB"""
-    from PIL import Image
-    import io
     im = Image.open(io.BytesIO(image_data))
     im = im.convert('RGB')
     data = np.array(im)
     assert data.ndim == 3
     assert data.dtype == np.uint8
     return data
+
 
 def main():
     node = PytorchRLBaseline()
