@@ -4,8 +4,7 @@ import torch
 from ddpg import DDPG
 from args import get_ddpg_args_test
 from utils import evaluate_policy
-from wrappers import NormalizeWrapper, ImgWrapper, \
-    DtRewardWrapper, ActionWrapper, ResizeWrapper
+
 from env import launch_env
 import numpy as np
 
@@ -22,12 +21,7 @@ file_name = "{}_{}".format(
 
 env = launch_env()
 
-# Wrappers
-env = ResizeWrapper(env)
-env = NormalizeWrapper(env)
-env = ImgWrapper(env) # to make the images from 160x120x3 into 3x160x120
-env = ActionWrapper(env)
-# env = DtRewardWrapper(env) # not during testing
+
 
 state_dim = env.observation_space.shape
 action_dim = env.action_space.shape[0]
@@ -48,6 +42,7 @@ with torch.no_grad():
         steps = 0
         while True:
             action = policy.predict(np.array(obs))
+
             obs, rew, done, misc = env.step(action)
             rewards.append(rew)
             env.render()

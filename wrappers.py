@@ -66,7 +66,7 @@ class DtRewardWrapper(gym.RewardWrapper):
 # this is needed because at max speed the duckie can't turn anymore
 class ActionWrapper(gym.ActionWrapper):
     def __init__(self, env):
-        super(ActionWrapper, self).__init__(env)
+        gym.ActionWrapper.__init__(self, env)
 
     def action(self, action):
         action_ = [action[0]*0.8, action[1]]
@@ -131,3 +131,35 @@ class SteeringToWheelVelWrapper(gym.ActionWrapper):
 
         vels = np.array([u_l_limited, u_r_limited])
         return vels
+
+class FakeWrap:
+    def __init__(self):
+        self.env = None
+        self.action_space = None
+
+        self.camera_width = 640
+        self.camera_height = 480
+        self.observation_space = spaces.Box(
+                low=0,
+                high=255,
+                shape=(self.camera_height, self.camera_width, 3),
+                dtype=np.uint8
+        )
+        self.reward_range = None
+        self.metadata = None
+
+
+class DTPytorchWrapper():
+    def __init__(self, shape=(120, 160, 3)):
+        self.shape = shape
+        self.transposed_shape = (shape[2], shape[0], shape[1])
+
+    def preprocess(self, obs):
+        # from PIL import Image
+        # return np.array(Image.fromarray(obs).resize(self.shape[0:2])).transpose(2, 0, 1)
+
+        import cv2
+        obs = cv2.resize(obs, self.shape[0:2])
+        # NOTICE: OpenCV changes the order of the channels !!!
+        obs = cv2.cvtColor(obs, cv2.COLOR_BGR2RGB)
+        return obs.transpose(2, 0, 1)

@@ -1,5 +1,5 @@
 # challenge name(s); defaults to all compatible challenges
-# challenge: [c1,c2]
+#  - aido2-LF-sim-testing
 
 protocol: aido2_db18_agent-z2
 user-label: "Baseline solution using reinforcement learning"

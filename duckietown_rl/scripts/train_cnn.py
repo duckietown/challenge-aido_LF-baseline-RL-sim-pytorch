@@ -44,15 +44,6 @@ if args.save_models and not os.path.exists("./pytorch_models"):
 
 env = launch_env()
 
-# Wrappers
-env = ResizeWrapper(env)    # FIXME if you want to use larger images, change the shape in that wrapper + the flatsize in the DDPG file (also marked by a FIXME)
-env = NormalizeWrapper(env)
-env = ImgWrapper(env) # to make the images from 160x120x3 into 3x160x120
-env = ActionWrapper(env)
-env = DtRewardWrapper(env)
-env = SteeringToWheelVelWrapper(env)
-
-
 # Set seeds
 seed(args.seed)
 
