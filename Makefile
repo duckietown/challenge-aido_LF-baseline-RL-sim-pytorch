@@ -1,7 +1,7 @@
 
 update-reqs:
 	pur --index-url $(PIP_INDEX_URL) -r requirements.txt -f -m '*' -o requirements.resolved
-	aido-update-reqs requirements.resolved
+	dt-update-reqs requirements.resolved
 
 submit: update-reqs
 	dts challenges submit

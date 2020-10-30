@@ -3,7 +3,7 @@ ARG AIDO_REGISTRY
 
 
 
-FROM ${AIDO_REGISTRY}/duckietown/challenge-aido_lf-template-pytorch:daffy
+FROM ${AIDO_REGISTRY}/duckietown/challenge-aido_lf-template-pytorch:daffy-amd64
 
 
 # let's create our workspace, we don't want to clutter the container
