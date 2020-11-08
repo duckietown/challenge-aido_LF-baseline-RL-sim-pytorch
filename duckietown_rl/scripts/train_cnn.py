@@ -16,6 +16,8 @@ from env import launch_env
 
 policy_name = "DDPG"
 
+print(f"Using {'cuda' if torch.cuda.is_available() else 'cpu'}")
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 args = get_ddpg_args_train()
@@ -70,6 +72,7 @@ env_counter = 0
 while total_timesteps < args.max_timesteps:
 
     if done:
+        print(f"Done @ {total_timesteps}")
 
         if total_timesteps != 0:
             print("Replay buffer length is ", len(replay_buffer.storage))   #TODO rm
