@@ -86,7 +86,7 @@ while total_timesteps < args.max_timesteps:
             evaluations.append(evaluate_policy(env, policy))
 
             if args.save_models:
-                policy.save(file_name, directory="./pytorch_models")
+                policy.save(file_name+"_"+str(total_timesteps), directory="./pytorch_models")
             np.savez("./results/{}.npz".format(file_name),evaluations)
 
         # Reset environment

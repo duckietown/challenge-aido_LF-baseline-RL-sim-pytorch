@@ -30,7 +30,7 @@ max_action = float(env.action_space.high[0])
 # Initialize policy
 policy = DDPG(state_dim, action_dim, max_action, net_type="cnn")
 
-policy.load(file_name, directory="./pytorch_models")
+policy.load("DDPG_500_1", directory="./pytorch_models")
 
 cutoff = 256
 
@@ -42,7 +42,7 @@ with torch.no_grad():
         steps = 0
         while True:
             action = policy.predict(np.array(obs))
-
+            print(action)
             obs, rew, done, misc = env.step(action)
             rewards.append(rew)
             env.render()
