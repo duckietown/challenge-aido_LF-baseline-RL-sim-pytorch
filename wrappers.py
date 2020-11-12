@@ -150,7 +150,7 @@ class FakeWrap:
 
 
 class DTPytorchWrapper():
-    def __init__(self, shape=(120, 160, 3)):
+    def __init__(self, shape=(64, 64, 3)):
         self.shape = shape
         self.transposed_shape = (shape[2], shape[0], shape[1])
 

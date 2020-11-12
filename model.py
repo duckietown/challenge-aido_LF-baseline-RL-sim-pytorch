@@ -39,16 +39,16 @@ class ActorCNN(nn.Module):
         super(ActorCNN, self).__init__()
 
         # ONLY TRU IN CASE OF DUCKIETOWN:
-        flat_size = 32 * 9 * 14
+        flat_size = 32 * 6 * 6
 
         self.lr = nn.LeakyReLU()
         self.tanh = nn.Tanh()
         self.sigm = nn.Sigmoid()
 
-        self.conv1 = nn.Conv2d(3, 32, 8, stride=2)
-        self.conv2 = nn.Conv2d(32, 32, 4, stride=2)
-        self.conv3 = nn.Conv2d(32, 32, 4, stride=2)
-        self.conv4 = nn.Conv2d(32, 32, 4, stride=1)
+        self.conv1 = nn.Conv2d(3, 32, 4, stride=2)
+        self.conv2 = nn.Conv2d(32, 32, 2, stride=2)
+        self.conv3 = nn.Conv2d(32, 32, 2, stride=2)
+        self.conv4 = nn.Conv2d(32, 32, 2, stride=1)
 
         self.bn1 = nn.BatchNorm2d(32)
         self.bn2 = nn.BatchNorm2d(32)
@@ -63,6 +63,7 @@ class ActorCNN(nn.Module):
         self.max_action = max_action
 
     def forward(self, x):
+
         x = self.bn1(self.lr(self.conv1(x)))
         x = self.bn2(self.lr(self.conv2(x)))
         x = self.bn3(self.lr(self.conv3(x)))
@@ -105,14 +106,16 @@ class CriticCNN(nn.Module):
     def __init__(self, action_dim):
         super(CriticCNN, self).__init__()
 
-        flat_size = 32 * 9 * 14
+        flat_size = 32 * 6 * 6
 
         self.lr = nn.LeakyReLU()
+        self.tanh = nn.Tanh()
+        self.sigm = nn.Sigmoid()
 
-        self.conv1 = nn.Conv2d(3, 32, 8, stride=2)
-        self.conv2 = nn.Conv2d(32, 32, 4, stride=2)
-        self.conv3 = nn.Conv2d(32, 32, 4, stride=2)
-        self.conv4 = nn.Conv2d(32, 32, 4, stride=1)
+        self.conv1 = nn.Conv2d(3, 32, 4, stride=2)
+        self.conv2 = nn.Conv2d(32, 32, 2, stride=2)
+        self.conv3 = nn.Conv2d(32, 32, 2, stride=2)
+        self.conv4 = nn.Conv2d(32, 32, 2, stride=1)
 
         self.bn1 = nn.BatchNorm2d(32)
         self.bn2 = nn.BatchNorm2d(32)
