@@ -56,6 +56,7 @@ max_action = float(env.action_space.high[0])
 
 # Initialize policy
 policy = DDPG(state_dim, action_dim, max_action, net_type="cnn")
+policy.load("DDPG_999_1515051", directory="./pytorch_models")
 
 replay_buffer = ReplayBuffer(args.replay_buffer_max_size)
 
@@ -86,7 +87,7 @@ while total_timesteps < args.max_timesteps:
             evaluations.append(evaluate_policy(env, policy))
 
             if args.save_models:
-                policy.save(file_name+"_"+str(total_timesteps), directory="./pytorch_models")
+                policy.save(file_name, directory="./pytorch_models")
             np.savez("./results/{}.npz".format(file_name),evaluations)
 
         # Reset environment
