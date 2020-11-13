@@ -1,8 +1,0 @@
-:The command ['docker', '-H=unix:///var/run/docker.sock', 'build', '--pull=0', '--no-cache=0', '-t',
-'duckietown/challenge-aido_LF-baseline-RL-sim-pytorch:fix-duckietown-gym-api-arm64v8', '--label',
-'org.duckietown.label.code.vcs=git', '--label', 'org.duckietown.label.code.repository=challenge-aido_LF-baseline-RL-sim-pytorch',
- '--label', 'org.duckietown.label.code.branch=fix-duckietown-gym-api', '--label',
- 'org.duckietown.label.code.url=https://github.com/Velythyl/challenge-aido_LF-baseline-RL-sim-pytorch',
-  '--label', 'org.duckietown.label.template.name=template-basic', '--label', 'org.duckietown.label.template.version=1',
-   '--build-arg', 'ARCH=arm64v8', '/home/charlie/Desktop/challenge-aido_lf-baseline-rl-sim-pytorch'] returned exit code 125
-
