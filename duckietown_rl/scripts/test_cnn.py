@@ -27,7 +27,6 @@ max_action = float(env.action_space.high[0])
 # Initialize policy
 policy = DDPG(state_dim, action_dim, max_action, net_type="cnn")
 
-policy.load("DDPG_999_5010", directory="./pytorch_models")
 
 cutoff = 256
 
