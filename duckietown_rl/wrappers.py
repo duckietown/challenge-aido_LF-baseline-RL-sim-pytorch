@@ -1,7 +1,7 @@
 import gym
 from gym import spaces
 import numpy as np
-
+from PIL import Image
 
 class ResizeWrapper(gym.ObservationWrapper):
     def __init__(self, env=None, shape=(64, 64, 3)):
@@ -15,9 +15,9 @@ class ResizeWrapper(gym.ObservationWrapper):
         self.shape = shape
 
     def observation(self, observation):
-        from PIL import Image
+
         return np.array(Image.fromarray(observation).resize(self.shape[0:2]))
-    
+
 
 class NormalizeWrapper(gym.ObservationWrapper):
     def __init__(self, env=None):

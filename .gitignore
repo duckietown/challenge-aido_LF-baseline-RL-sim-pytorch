@@ -113,3 +113,4 @@ src/*
 
 *.pth
 log.txt
+requirements.resolved

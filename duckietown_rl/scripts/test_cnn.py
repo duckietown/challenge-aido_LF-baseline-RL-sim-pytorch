@@ -1,12 +1,11 @@
-import gym
-import gym_duckietown
-import torch
-from ddpg import DDPG
-from args import get_ddpg_args_test
-from utils import evaluate_policy
-
-from env import launch_env
 import numpy as np
+import torch
+from args import get_ddpg_args_test
+
+from ddpg import DDPG
+from env import launch_env
+
+from wrappers import ActionWrapper, ImgWrapper, NormalizeWrapper, ResizeWrapper
 
 policy_name = "DDPG"
 
@@ -20,8 +19,6 @@ file_name = "{}_{}".format(
 )
 
 env = launch_env()
-
-
 
 state_dim = env.observation_space.shape
 action_dim = env.action_space.shape[0]
@@ -49,4 +46,4 @@ with torch.no_grad():
             steps += 1
             if done or steps >= cutoff:
                 break
-        print ("mean episode reward:",np.mean(rewards))
+        print("mean episode reward:", np.mean(rewards))
