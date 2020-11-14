@@ -111,4 +111,6 @@ __pycache__/
 #src
 src/*
 
+*.pth
+log.txt
 requirements.resolved

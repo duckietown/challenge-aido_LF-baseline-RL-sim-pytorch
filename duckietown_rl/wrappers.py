@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 
 class ResizeWrapper(gym.ObservationWrapper):
-    def __init__(self, env=None, shape=(120, 160, 3)):
+    def __init__(self, env=None, shape=(64, 64, 3)):
         super(ResizeWrapper, self).__init__(env)
         self.observation_space.shape = shape
         self.observation_space = spaces.Box(
@@ -66,10 +66,10 @@ class DtRewardWrapper(gym.RewardWrapper):
 # this is needed because at max speed the duckie can't turn anymore
 class ActionWrapper(gym.ActionWrapper):
     def __init__(self, env):
-        super(ActionWrapper, self).__init__(env)
+        gym.ActionWrapper.__init__(self, env)
 
     def action(self, action):
-        action_ = [action[0] * 0.8, action[1]]
+        action_ = [action[0]*0.8, action[1]]
         return action_
 
 

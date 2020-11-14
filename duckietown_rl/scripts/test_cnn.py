@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 from args import get_ddpg_args_test
+
 from ddpg import DDPG
 from env import launch_env
 
@@ -19,13 +20,6 @@ file_name = "{}_{}".format(
 
 env = launch_env()
 
-# Wrappers
-env = ResizeWrapper(env)
-env = NormalizeWrapper(env)
-env = ImgWrapper(env)  # to make the images from 160x120x3 into 3x160x120
-env = ActionWrapper(env)
-# env = DtRewardWrapper(env) # not during testing
-
 state_dim = env.observation_space.shape
 action_dim = env.action_space.shape[0]
 max_action = float(env.action_space.high[0])
@@ -33,18 +27,23 @@ max_action = float(env.action_space.high[0])
 # Initialize policy
 policy = DDPG(state_dim, action_dim, max_action, net_type="cnn")
 
-policy.load(file_name, directory="./pytorch_models")
+policy.load("DDPG_999_5010", directory="./pytorch_models")
+
+cutoff = 256
 
 with torch.no_grad():
     while True:
         obs = env.reset()
         env.render()
         rewards = []
+        steps = 0
         while True:
             action = policy.predict(np.array(obs))
+            print(action)
             obs, rew, done, misc = env.step(action)
             rewards.append(rew)
             env.render()
-            if done:
+            steps += 1
+            if done or steps >= cutoff:
                 break
         print("mean episode reward:", np.mean(rewards))

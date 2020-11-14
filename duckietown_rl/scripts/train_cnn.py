@@ -1,23 +1,38 @@
+import pickle
 import random
-
+import resource
+import gym_duckietown
 import numpy as np
 import torch
 import gym
-import gym_duckietown
 import os
 
 from args import get_ddpg_args_train
 from ddpg import DDPG
 from utils import seed, evaluate_policy, ReplayBuffer
 from wrappers import NormalizeWrapper, ImgWrapper, \
-    DtRewardWrapper, ActionWrapper, ResizeWrapper
+    DtRewardWrapper, ActionWrapper, ResizeWrapper, SteeringToWheelVelWrapper
 from env import launch_env
 
 policy_name = "DDPG"
 
+print(f"Using {'cuda' if torch.cuda.is_available() else 'cpu'}")
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 args = get_ddpg_args_train()
+
+if args.log_file != None:
+    print('You asked for a log file. "Tee-ing" print to also print to file "'+args.log_file+'" now...')
+
+    import subprocess, os, sys
+
+    tee = subprocess.Popen(["tee", args.log_file], stdin=subprocess.PIPE)
+    # Cause tee's stdin to get a copy of our stdin/stdout (as well as that
+    # of any child processes we spawn)
+    os.dup2(tee.stdin.fileno(), sys.stdout.fileno())
+    os.dup2(tee.stdin.fileno(), sys.stderr.fileno())
+
 
 file_name = "{}_{}".format(
     policy_name,
@@ -31,14 +46,6 @@ if args.save_models and not os.path.exists("./pytorch_models"):
 
 env = launch_env()
 
-# Wrappers
-env = ResizeWrapper(env)
-env = NormalizeWrapper(env)
-env = ImgWrapper(env) # to make the images from 160x120x3 into 3x160x120
-env = ActionWrapper(env)
-env = DtRewardWrapper(env)
-
-
 # Set seeds
 seed(args.seed)
 
@@ -49,6 +56,7 @@ max_action = float(env.action_space.high[0])
 
 # Initialize policy
 policy = DDPG(state_dim, action_dim, max_action, net_type="cnn")
+#policy.load("DDPG_999_1515051", directory="./pytorch_models")
 
 replay_buffer = ReplayBuffer(args.replay_buffer_max_size)
 
@@ -61,11 +69,14 @@ episode_num = 0
 done = True
 episode_reward = None
 env_counter = 0
+
 while total_timesteps < args.max_timesteps:
 
     if done:
+        print(f"Done @ {total_timesteps}")
 
         if total_timesteps != 0:
+            print("Replay buffer length is ", len(replay_buffer.storage))   #TODO rm
             print(("Total T: %d Episode Num: %d Episode T: %d Reward: %f") % (
                 total_timesteps, episode_num, episode_timesteps, episode_reward))
             policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
@@ -101,6 +112,8 @@ while total_timesteps < args.max_timesteps:
 
     # Perform action
     new_obs, reward, done, _ = env.step(action)
+    if action[0] < 0.001:   #Penalise slow actions: helps the bot to figure out that going straight > turning in circles
+        reward = 0
 
     if episode_timesteps >= args.env_timesteps:
         done = True
@@ -110,6 +123,7 @@ while total_timesteps < args.max_timesteps:
 
     # Store data in replay buffer
     replay_buffer.add(obs, new_obs, action, reward, done_bool)
+    #approximate_size(replay_buffer)   #TODO rm
 
     obs = new_obs
 

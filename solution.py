@@ -8,19 +8,17 @@ from PIL import Image
 from aido_schemas import (Context, DB20Commands, DB20Observations, EpisodeStart, JPGImage,
                           LEDSCommands, protocol_agent_DB20, PWMCommands, RGB, wrap_direct)
 from model import DDPG
-from wrappers import DTPytorchWrapper
-
+from wrappers import *
 
 class PytorchRLBaseline:
     def __init__(self, load_model=False, model_path=None):
-        self.preprocessor = DTPytorchWrapper()
-        self.model = DDPG(state_dim=self.preprocessor.shape, action_dim=2, max_action=1, net_type="cnn")
+        self.image_processor = DTPytorchWrapper()
+        self.action_processor = ActionWrapper(FakeWrap())
+
+        self.model = DDPG(state_dim=self.image_processor.shape, action_dim=2, max_action=1, net_type="cnn")
         self.current_image = np.zeros((640, 480, 3))
 
-        # TODO: Uncomment when you train your model!
-
-        # fp = model_path if model_path else "model"
-        # self.model.load(fp, "models", for_inference=True)
+        self.model.load("model", directory="./models")
 
     def init(self, context: Context):
         context.info('init()')
@@ -34,12 +32,12 @@ class PytorchRLBaseline:
     def on_received_observations(self, data: DB20Observations):
         camera: JPGImage = data.camera
         obs = jpg2rgb(camera.jpg_data)
-        self.current_image = self.preprocessor.preprocess(obs)
+        self.current_image = self.image_processor.preprocess(obs)
 
     def compute_action(self, observation):
         action = self.model.predict(observation)
 
-        return action.astype(float)
+        return self.action_processor.action(action.astype(float))
 
     def on_received_get_commands(self, context: Context):
         pwm_left, pwm_right = self.compute_action(self.current_image)
