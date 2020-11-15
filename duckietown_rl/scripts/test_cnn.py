@@ -39,8 +39,7 @@ with torch.no_grad():
         steps = 0
         while True:
             action = policy.predict(np.array(obs))
-            action[1] *= 0.5
-            action[0] *= 1e45
+
             print(action)
             obs, rew, done, misc = env.step(action)
             rewards.append(rew)
