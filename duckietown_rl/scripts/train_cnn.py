@@ -56,7 +56,6 @@ max_action = float(env.action_space.high[0])
 
 # Initialize policy
 policy = DDPG(state_dim, action_dim, max_action, net_type="cnn")
-#policy.load("DDPG_999_1515051", directory="./pytorch_models")
 
 replay_buffer = ReplayBuffer(args.replay_buffer_max_size)
 
