@@ -9,19 +9,38 @@ from aido_schemas import (Context, DB20Commands, DB20Observations, EpisodeStart,
                           LEDSCommands, protocol_agent_DB20, PWMCommands, RGB, wrap_direct)
 from model import DDPG
 from wrappers import *
+import torch
+import os
 
 class PytorchRLBaseline:
     def __init__(self, load_model=False, model_path=None):
         self.image_processor = DTPytorchWrapper()
         self.action_processor = ActionWrapper(FakeWrap())
 
-        self.model = DDPG(state_dim=self.image_processor.shape, action_dim=2, max_action=1, net_type="cnn")
-        self.current_image = np.zeros((640, 480, 3))
-
-        self.model.load("model", directory="./models")
-
     def init(self, context: Context):
         context.info('init()')
+
+        self.check_gpu_available(context)
+
+        self.model = DDPG(state_dim=self.image_processor.shape, action_dim=2, max_action=1, net_type="cnn")
+        self.current_image = np.zeros((640, 480, 3))
+        self.model.load("model", directory="./models")
+
+    def check_gpu_available(self, context: Context):
+        available = torch.cuda.is_available()
+        req = os.environ.get('AIDO_REQUIRE_GPU', None)
+        context.info(f'torch.cuda.is_available = {available!r} AIDO_REQUIRE_GPU = {req!r}')
+        context.info('init()')
+        if available:
+            i = torch.cuda.current_device()
+            count = torch.cuda.device_count()
+            name = torch.cuda.get_device_name(i)
+            context.info(f'device {i} of {count}; name = {name!r}')
+        else:
+            if req is not None:
+                msg = 'I need a GPU; bailing.'
+                context.error(msg)
+                raise Exception(msg)
 
     def on_received_seed(self, data: int):
         np.random.seed(data)

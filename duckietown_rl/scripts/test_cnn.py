@@ -39,6 +39,7 @@ with torch.no_grad():
         steps = 0
         while True:
             action = policy.predict(np.array(obs))
+
             print(action)
             obs, rew, done, misc = env.step(action)
             rewards.append(rew)

@@ -21,6 +21,8 @@ COPY requirements.* ./
 RUN cat requirements.* > .requirements.txt
 RUN  pip3 install --use-feature=2020-resolver -r .requirements.txt
 
+# Juuuuust in case...
+RUN pip3 uninstall dataclasses -y
 
 # let's copy all our solution files to our workspace
 # if you have more file use the COPY command to move them to the workspace
@@ -34,4 +36,4 @@ WORKDIR /workspace
 
 
 # let's see what you've got there...
-CMD python solution.py
+CMD python3 solution.py

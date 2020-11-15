@@ -56,7 +56,6 @@ max_action = float(env.action_space.high[0])
 
 # Initialize policy
 policy = DDPG(state_dim, action_dim, max_action, net_type="cnn")
-#policy.load("DDPG_999_1515051", directory="./pytorch_models")
 
 replay_buffer = ReplayBuffer(args.replay_buffer_max_size)
 
@@ -76,7 +75,7 @@ while total_timesteps < args.max_timesteps:
         print(f"Done @ {total_timesteps}")
 
         if total_timesteps != 0:
-            print("Replay buffer length is ", len(replay_buffer.storage))   #TODO rm
+            print("Replay buffer length is ", len(replay_buffer.storage))
             print(("Total T: %d Episode Num: %d Episode T: %d Reward: %f") % (
                 total_timesteps, episode_num, episode_timesteps, episode_reward))
             policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
