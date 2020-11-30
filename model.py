@@ -233,5 +233,7 @@ class DDPG(object):
         torch.save(self.critic.state_dict(), '{}/{}_critic.pth'.format(directory, filename))
 
     def load(self, filename, directory):
-        self.actor.load_state_dict(torch.load('{}/{}_actor.pth'.format(directory, filename), map_location=device))
-        self.critic.load_state_dict(torch.load('{}/{}_critic.pth'.format(directory, filename), map_location=device))
+        self.actor.load_state_dict(
+            torch.load('{}/{}_actor.pth'.format(directory, filename), map_location=device))
+        self.critic.load_state_dict(
+            torch.load('{}/{}_critic.pth'.format(directory, filename), map_location=device))

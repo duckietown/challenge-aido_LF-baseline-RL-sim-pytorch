@@ -1,7 +1,10 @@
-import gym
-from gym import spaces
-import numpy as np
 import cv2
+import gym
+import numpy as np
+from gym import spaces
+
+__all__ = ['ResizeWrapper', 'NormalizeWrapper', 'ImgWrapper',
+           'DtRewardWrapper', 'ActionWrapper', 'SteeringToWheelVelWrapper', 'DTPytorchWrapper', 'FakeWrap']
 
 
 class ResizeWrapper(gym.ObservationWrapper):
@@ -18,7 +21,7 @@ class ResizeWrapper(gym.ObservationWrapper):
     def observation(self, observation):
         from PIL import Image
         return np.array(Image.fromarray(observation).resize(self.shape[0:2]))
-    
+
 
 class NormalizeWrapper(gym.ObservationWrapper):
     def __init__(self, env=None):
@@ -64,13 +67,13 @@ class DtRewardWrapper(gym.RewardWrapper):
         return reward
 
 
-# this is needed because at max speed the duckie can't turn anymore
+# This is needed because at max speed the duckie can't turn anymore
 class ActionWrapper(gym.ActionWrapper):
     def __init__(self, env):
         gym.ActionWrapper.__init__(self, env)
 
     def action(self, action):
-        action_ = [action[0]*0.8, action[1]]
+        action_ = [action[0] * 0.8, action[1]]
         return action_
 
 
@@ -133,6 +136,7 @@ class SteeringToWheelVelWrapper(gym.ActionWrapper):
         vels = np.array([u_l_limited, u_r_limited])
         return vels
 
+
 class FakeWrap:
     def __init__(self):
         self.env = None
@@ -141,16 +145,16 @@ class FakeWrap:
         self.camera_width = 640
         self.camera_height = 480
         self.observation_space = spaces.Box(
-                low=0,
-                high=255,
-                shape=(self.camera_height, self.camera_width, 3),
-                dtype=np.uint8
+            low=0,
+            high=255,
+            shape=(self.camera_height, self.camera_width, 3),
+            dtype=np.uint8
         )
         self.reward_range = None
         self.metadata = None
 
 
-class DTPytorchWrapper():
+class DTPytorchWrapper:
     def __init__(self, shape=(64, 64, 3)):
         self.shape = shape
         self.transposed_shape = (shape[2], shape[0], shape[1])

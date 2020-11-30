@@ -9,6 +9,10 @@ FROM ${AIDO_REGISTRY}/duckietown/challenge-aido_lf-template-pytorch:daffy-amd64
 # let's create our workspace, we don't want to clutter the container
 RUN rm -r /workspace; mkdir /workspace
 
+
+# we make the workspace our working directory
+WORKDIR /workspace
+
 ARG PIP_INDEX_URL
 ENV PIP_INDEX_URL=${PIP_INDEX_URL}
 RUN echo PIP_INDEX_URL=${PIP_INDEX_URL}
@@ -26,14 +30,10 @@ RUN pip3 uninstall dataclasses -y
 
 # let's copy all our solution files to our workspace
 # if you have more file use the COPY command to move them to the workspace
-COPY solution.py /workspace
+COPY *.py ./
 COPY models /workspace/models
-COPY model.py /workspace
-COPY wrappers.py /workspace
-
-# we make the workspace our working directory
-WORKDIR /workspace
 
 
-# let's see what you've got there...
+
+
 CMD python3 solution.py

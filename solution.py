@@ -1,24 +1,27 @@
 #!/usr/bin/env python3
 
 import io
+import os
 
 import numpy as np
+from gym import ActionWrapper
 from PIL import Image
 
 from aido_schemas import (Context, DB20Commands, DB20Observations, EpisodeStart, JPGImage,
                           LEDSCommands, protocol_agent_DB20, PWMCommands, RGB, wrap_direct)
-from model import DDPG
-from wrappers import *
-import torch
-import os
+from gym_wrappers import DTPytorchWrapper, FakeWrap
+
+__all__ = ['PytorchRLBaseline']
+
 
 class PytorchRLBaseline:
-    def __init__(self, load_model=False, model_path=None):
-        self.image_processor = DTPytorchWrapper()
-        self.action_processor = ActionWrapper(FakeWrap())
 
     def init(self, context: Context):
         context.info('init()')
+
+        self.image_processor = DTPytorchWrapper()
+        self.action_processor = ActionWrapper(FakeWrap())
+        from model import DDPG
 
         self.check_gpu_available(context)
 
@@ -27,6 +30,7 @@ class PytorchRLBaseline:
         self.model.load("model", directory="./models")
 
     def check_gpu_available(self, context: Context):
+        import torch
         available = torch.cuda.is_available()
         req = os.environ.get('AIDO_REQUIRE_GPU', None)
         context.info(f'torch.cuda.is_available = {available!r} AIDO_REQUIRE_GPU = {req!r}')
