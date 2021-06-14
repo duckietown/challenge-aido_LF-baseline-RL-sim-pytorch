@@ -1,12 +1,20 @@
 import gym
 
-from wrappers import NormalizeWrapper, ImgWrapper, \
-    DtRewardWrapper, ActionWrapper, ResizeWrapper, SteeringToWheelVelWrapper
+from wrappers import (
+    NormalizeWrapper,
+    ImgWrapper,
+    DtRewardWrapper,
+    ActionWrapper,
+    ResizeWrapper,
+    SteeringToWheelVelWrapper,
+)
+
 
 def launch_env(id=None):
     env = None
     if id is None:
         from gym_duckietown.simulator import Simulator
+
         env = Simulator(
             seed=123,  # random seed
             map_name="loop_empty",
@@ -27,6 +35,6 @@ def launch_env(id=None):
     env = ImgWrapper(env)  # to make the images from 160x120x3 into 3x160x120
     env = SteeringToWheelVelWrapper(env)
     env = ActionWrapper(env)
-    #env = DtRewardWrapper(env)
+    # env = DtRewardWrapper(env)
 
     return env

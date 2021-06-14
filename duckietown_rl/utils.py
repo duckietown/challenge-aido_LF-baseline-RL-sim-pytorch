@@ -51,12 +51,12 @@ class ReplayBuffer:
             "next_state": np.stack(next_states),
             "action": np.stack(actions),
             "reward": np.stack(rewards).reshape(-1, 1),
-            "done": np.stack(dones).reshape(-1, 1)
+            "done": np.stack(dones).reshape(-1, 1),
         }
 
 
 def evaluate_policy(env, policy, eval_episodes=10, max_timesteps=500):
-    avg_reward = 0.
+    avg_reward = 0.0
     for _ in range(eval_episodes):
         obs = env.reset()
         done = False

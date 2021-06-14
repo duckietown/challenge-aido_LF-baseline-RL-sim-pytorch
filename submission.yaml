@@ -1,8 +1,10 @@
-# challenge name(s); defaults to all compatible challenges
-#  - aido2-LF-sim-testing
+challenge:
+  - aido-LF*
 
 protocol: aido2_db18_agent-z2
 user-label: "baseline-RL-sim-pytorch"
-user-payload: {}
+user-payload:
+    features_required:
+        gpu: 1
 description: |
-    This is a simple baseline solution to do reinforcement learning
+    This is a simple baseline solution to do reinforcement learning.

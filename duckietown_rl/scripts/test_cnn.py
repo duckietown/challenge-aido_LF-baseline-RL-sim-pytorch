@@ -13,10 +13,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 args = get_ddpg_args_test()
 
-file_name = "{}_{}".format(
-    policy_name,
-    args.seed
-)
+file_name = "{}_{}".format(policy_name, args.seed)
 
 env = launch_env()
 
