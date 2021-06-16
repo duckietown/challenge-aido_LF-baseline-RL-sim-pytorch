@@ -7,4 +7,4 @@ submit: update-reqs
 	dts challenges submit
 
 submit-bea: update-reqs
-	dts challenges submit --impersonate 1639 --challenge all --retire-same-label
+	dts challenges submit --impersonate 1639 --challenge 'aido-LF*' --retire-same-label
