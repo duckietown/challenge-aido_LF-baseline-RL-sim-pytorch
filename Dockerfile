@@ -13,7 +13,7 @@ RUN rm -r /workspace; mkdir /workspace
 # we make the workspace our working directory
 WORKDIR /workspace
 
-ARG PIP_INDEX_URL
+ARG PIP_INDEX_URL="https://pypi.org/simple"
 ENV PIP_INDEX_URL=${PIP_INDEX_URL}
 RUN echo PIP_INDEX_URL=${PIP_INDEX_URL}
 
