@@ -7,14 +7,18 @@ import numpy as np
 from gym import ActionWrapper
 from PIL import Image
 
-from aido_schemas import (Context, DB20Commands, DB20Observations, EpisodeStart, JPGImage,
-                          LEDSCommands, protocol_agent_DB20, PWMCommands, RGB, wrap_direct)
+from aido_schemas import (Context, DB20Commands, DB20ObservationsWithTimestamp,
+                          EpisodeStart, JPGImageWithTimestamp, LEDSCommands, protocol_agent_DB20, PWMCommands,
+                          RGB,
+                          wrap_direct)
 from gym_wrappers import DTPytorchWrapper, FakeWrap
 
 __all__ = ['PytorchRLBaseline']
 
 
 class PytorchRLBaseline:
+    image_processor: DTPytorchWrapper
+    action_procerssor: ActionWrapper
 
     def init(self, context: Context):
         context.info('init()')
@@ -52,8 +56,8 @@ class PytorchRLBaseline:
     def on_received_episode_start(self, context: Context, data: EpisodeStart):
         context.info(f'Starting episode "{data.episode_name}".')
 
-    def on_received_observations(self, data: DB20Observations):
-        camera: JPGImage = data.camera
+    def on_received_observations(self, data: DB20ObservationsWithTimestamp):
+        camera: JPGImageWithTimestamp = data.camera
         obs = jpg2rgb(camera.jpg_data)
         self.current_image = self.image_processor.preprocess(obs)
 
