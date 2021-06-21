@@ -3,6 +3,7 @@ from gym import spaces
 import numpy as np
 from PIL import Image
 
+
 class ResizeWrapper(gym.ObservationWrapper):
     def __init__(self, env=None, shape=(64, 64, 3)):
         super(ResizeWrapper, self).__init__(env)
@@ -11,7 +12,8 @@ class ResizeWrapper(gym.ObservationWrapper):
             self.observation_space.low[0, 0, 0],
             self.observation_space.high[0, 0, 0],
             shape,
-            dtype=self.observation_space.dtype)
+            dtype=self.observation_space.dtype,
+        )
         self.shape = shape
 
     def observation(self, observation):
@@ -42,7 +44,8 @@ class ImgWrapper(gym.ObservationWrapper):
             self.observation_space.low[0, 0, 0],
             self.observation_space.high[0, 0, 0],
             [obs_shape[2], obs_shape[0], obs_shape[1]],
-            dtype=self.observation_space.dtype)
+            dtype=self.observation_space.dtype,
+        )
 
     def observation(self, observation):
         return observation.transpose(2, 0, 1)
@@ -69,7 +72,7 @@ class ActionWrapper(gym.ActionWrapper):
         gym.ActionWrapper.__init__(self, env)
 
     def action(self, action):
-        action_ = [action[0]*0.8, action[1]]
+        action_ = [action[0] * 0.8, action[1]]
         return action_
 
 
@@ -79,15 +82,7 @@ class SteeringToWheelVelWrapper(gym.ActionWrapper):
     [wheelvel_left|wheelvel_right] to comply with AIDO evaluation format
     """
 
-    def __init__(self,
-                 env,
-                 gain=1.0,
-                 trim=0.0,
-                 radius=0.0318,
-                 k=27.0,
-                 limit=1.0,
-                 wheel_dist=0.102
-                 ):
+    def __init__(self, env, gain=1.0, trim=0.0, radius=0.0318, k=27.0, limit=1.0, wheel_dist=0.102):
         gym.ActionWrapper.__init__(self, env)
 
         # Should be adjusted so that the effective speed of the robot is 0.2 m/s
