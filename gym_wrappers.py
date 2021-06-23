@@ -9,7 +9,7 @@ __all__ = [
     "NormalizeWrapper",
     "ImgWrapper",
     "DtRewardWrapper",
-    "ActionWrapper",
+    "SpeedActionWrapper",
     "SteeringToWheelVelWrapper",
     "DTPytorchWrapper",
     "FakeWrap",
@@ -78,13 +78,16 @@ class DtRewardWrapper(gym.RewardWrapper):
 
 
 # This is needed because at max speed the duckie can't turn anymore
-class ActionWrapper(gym.ActionWrapper):
+class SpeedActionWrapper(gym.ActionWrapper):
     def __init__(self, env):
         gym.ActionWrapper.__init__(self, env)
 
     def action(self, action):
         action_ = [action[0] * 0.8, action[1]]
         return action_
+
+    def reverse_action(self, action):
+        raise NotImplementedError()
 
 
 class SteeringToWheelVelWrapper(gym.ActionWrapper):
@@ -137,6 +140,9 @@ class SteeringToWheelVelWrapper(gym.ActionWrapper):
 
         vels = np.array([u_l_limited, u_r_limited])
         return vels
+
+    def reverse_action(self, action):
+        raise NotImplementedError()
 
 
 class FakeWrap:
