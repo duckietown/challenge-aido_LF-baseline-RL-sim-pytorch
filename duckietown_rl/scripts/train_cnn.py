@@ -10,8 +10,14 @@ import os
 from args import get_ddpg_args_train
 from ddpg import DDPG
 from utils import seed, evaluate_policy, ReplayBuffer
-from wrappers import NormalizeWrapper, ImgWrapper, \
-    DtRewardWrapper, ActionWrapper, ResizeWrapper, SteeringToWheelVelWrapper
+from wrappers import (
+    NormalizeWrapper,
+    ImgWrapper,
+    DtRewardWrapper,
+    ActionWrapper,
+    ResizeWrapper,
+    SteeringToWheelVelWrapper,
+)
 from env import launch_env
 
 policy_name = "DDPG"
@@ -23,7 +29,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 args = get_ddpg_args_train()
 
 if args.log_file != None:
-    print('You asked for a log file. "Tee-ing" print to also print to file "'+args.log_file+'" now...')
+    print('You asked for a log file. "Tee-ing" print to also print to file "' + args.log_file + '" now...')
 
     import subprocess, os, sys
 
@@ -60,7 +66,7 @@ policy = DDPG(state_dim, action_dim, max_action, net_type="cnn")
 replay_buffer = ReplayBuffer(args.replay_buffer_max_size)
 
 # Evaluate untrained policy
-evaluations= [evaluate_policy(env, policy)]
+evaluations = [evaluate_policy(env, policy)]
 
 total_timesteps = 0
 timesteps_since_eval = 0
@@ -76,8 +82,10 @@ while total_timesteps < args.max_timesteps:
 
         if total_timesteps != 0:
             print("Replay buffer length is ", len(replay_buffer.storage))
-            print(("Total T: %d Episode Num: %d Episode T: %d Reward: %f") % (
-                total_timesteps, episode_num, episode_timesteps, episode_reward))
+            print(
+                ("Total T: %d Episode Num: %d Episode T: %d Reward: %f")
+                % (total_timesteps, episode_num, episode_timesteps, episode_reward)
+            )
             policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
 
         # Evaluate episode
@@ -87,7 +95,7 @@ while total_timesteps < args.max_timesteps:
 
             if args.save_models:
                 policy.save(file_name, directory="./pytorch_models")
-            np.savez("./results/{}.npz".format(file_name),evaluations)
+            np.savez("./results/{}.npz".format(file_name), evaluations)
 
         # Reset environment
         env_counter += 1
@@ -103,15 +111,15 @@ while total_timesteps < args.max_timesteps:
     else:
         action = policy.predict(np.array(obs))
         if args.expl_noise != 0:
-            action = (action + np.random.normal(
-                0,
-                args.expl_noise,
-                size=env.action_space.shape[0])
-                      ).clip(env.action_space.low, env.action_space.high)
+            action = (action + np.random.normal(0, args.expl_noise, size=env.action_space.shape[0])).clip(
+                env.action_space.low, env.action_space.high
+            )
 
     # Perform action
     new_obs, reward, done, _ = env.step(action)
-    if action[0] < 0.001:   #Penalise slow actions: helps the bot to figure out that going straight > turning in circles
+    if (
+        action[0] < 0.001
+    ):  # Penalise slow actions: helps the bot to figure out that going straight > turning in circles
         reward = 0
 
     if episode_timesteps >= args.env_timesteps:
@@ -122,7 +130,7 @@ while total_timesteps < args.max_timesteps:
 
     # Store data in replay buffer
     replay_buffer.add(obs, new_obs, action, reward, done_bool)
-    #approximate_size(replay_buffer)   #TODO rm
+    # approximate_size(replay_buffer)   #TODO rm
 
     obs = new_obs
 
@@ -135,4 +143,4 @@ evaluations.append(evaluate_policy(env, policy))
 
 if args.save_models:
     policy.save(file_name, directory="./pytorch_models")
-np.savez("./results/{}.npz".format(file_name),evaluations)
+np.savez("./results/{}.npz".format(file_name), evaluations)

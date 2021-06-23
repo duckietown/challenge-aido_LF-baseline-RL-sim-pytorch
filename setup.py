@@ -1,7 +1,6 @@
 from setuptools import setup
 
 
-
 def get_version(filename: str):
     import ast
 
@@ -21,15 +20,18 @@ def get_version(filename: str):
 version = get_version(filename="duckietown_rl/__init__.py")
 
 
-setup(name='duckietown_rl',
-      version='1.0',
-      packages=['duckietown_rl'],
-      install_requires=['gym==0.15.4',
-                        'gym_duckietown_agent>=2018.08',
-                        'hyperdash', # for logging
-                        'sklearn',
-                        'torch',
-                        'numpy',
-                        'matplotlib',
-                        'scipy<=1.2.1']
-      )
+setup(
+    name="duckietown_rl",
+    version=version,
+    packages=["duckietown_rl"],
+    install_requires=[
+        "gym==0.15.4",
+        "gym_duckietown_agent>=2018.08",
+        "hyperdash",  # for logging
+        "sklearn",
+        "torch",
+        "numpy",
+        "matplotlib",
+        "scipy<=1.2.1",
+    ],
+)

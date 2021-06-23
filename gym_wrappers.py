@@ -2,9 +2,18 @@ import cv2
 import gym
 import numpy as np
 from gym import spaces
+from PIL import Image
 
-__all__ = ['ResizeWrapper', 'NormalizeWrapper', 'ImgWrapper',
-           'DtRewardWrapper', 'ActionWrapper', 'SteeringToWheelVelWrapper', 'DTPytorchWrapper', 'FakeWrap']
+__all__ = [
+    "ResizeWrapper",
+    "NormalizeWrapper",
+    "ImgWrapper",
+    "DtRewardWrapper",
+    "ActionWrapper",
+    "SteeringToWheelVelWrapper",
+    "DTPytorchWrapper",
+    "FakeWrap",
+]
 
 
 class ResizeWrapper(gym.ObservationWrapper):
@@ -15,11 +24,11 @@ class ResizeWrapper(gym.ObservationWrapper):
             self.observation_space.low[0, 0, 0],
             self.observation_space.high[0, 0, 0],
             shape,
-            dtype=self.observation_space.dtype)
+            dtype=self.observation_space.dtype,
+        )
         self.shape = shape
 
     def observation(self, observation):
-        from PIL import Image
         return np.array(Image.fromarray(observation).resize(self.shape[0:2]))
 
 
@@ -46,7 +55,8 @@ class ImgWrapper(gym.ObservationWrapper):
             self.observation_space.low[0, 0, 0],
             self.observation_space.high[0, 0, 0],
             [obs_shape[2], obs_shape[0], obs_shape[1]],
-            dtype=self.observation_space.dtype)
+            dtype=self.observation_space.dtype,
+        )
 
     def observation(self, observation):
         return observation.transpose(2, 0, 1)
@@ -83,15 +93,7 @@ class SteeringToWheelVelWrapper(gym.ActionWrapper):
     [wheelvel_left|wheelvel_right] to comply with AIDO evaluation format
     """
 
-    def __init__(self,
-                 env,
-                 gain=1.0,
-                 trim=0.0,
-                 radius=0.0318,
-                 k=27.0,
-                 limit=1.0,
-                 wheel_dist=0.102
-                 ):
+    def __init__(self, env, gain=1.0, trim=0.0, radius=0.0318, k=27.0, limit=1.0, wheel_dist=0.102):
         gym.ActionWrapper.__init__(self, env)
 
         # Should be adjusted so that the effective speed of the robot is 0.2 m/s
@@ -145,10 +147,7 @@ class FakeWrap:
         self.camera_width = 640
         self.camera_height = 480
         self.observation_space = spaces.Box(
-            low=0,
-            high=255,
-            shape=(self.camera_height, self.camera_width, 3),
-            dtype=np.uint8
+            low=0, high=255, shape=(self.camera_height, self.camera_width, 3), dtype=np.uint8
         )
         self.reward_range = None
         self.metadata = None
