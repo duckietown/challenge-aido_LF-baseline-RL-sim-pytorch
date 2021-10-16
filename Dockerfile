@@ -1,10 +1,10 @@
-ARG AIDO_REGISTRY
+ARG DOCKER_REGISTRY
 
 ARG ARCH=amd64
 ARG MAJOR=daffy
 ARG BASE_TAG=${MAJOR}-${ARCH}
 
-FROM ${AIDO_REGISTRY}/duckietown/challenge-aido_lf-template-pytorch:${BASE_TAG}
+FROM ${DOCKER_REGISTRY}/duckietown/challenge-aido_lf-template-pytorch:${BASE_TAG}
 
 
 # let's create our workspace, we don't want to clutter the container
@@ -36,4 +36,3 @@ COPY node_launch.yaml .
 RUN node-launch --config node_launch.yaml --check
 
 ENTRYPOINT ["node-launch", "--config", "node_launch.yaml"]
-
