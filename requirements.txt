@@ -1,4 +1,4 @@
-gym~=0.15.4
+gym<0.16
 numpy
 pyzmq~=19.0.1
 PyYAML~=5.3.1
