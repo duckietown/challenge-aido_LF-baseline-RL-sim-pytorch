@@ -8,7 +8,7 @@ FROM ${DOCKER_REGISTRY}/duckietown/challenge-aido_lf-template-pytorch:${BASE_TAG
 
 
 # let's create our workspace, we don't want to clutter the container
-RUN rm -r /workspace; mkdir /workspace
+RUN rm -rf /workspace; mkdir /workspace
 
 
 # we make the workspace our working directory
