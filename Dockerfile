@@ -11,8 +11,8 @@ FROM ${DOCKER_REGISTRY}/duckietown/challenge-aido_lf-template-pytorch:${BASE_TAG
 ARG PIP_INDEX_URL="https://pypi.org/simple/"
 ENV PIP_INDEX_URL=${PIP_INDEX_URL}
 
-COPY ./requirements.txt ./requirements.txt
-RUN python3 -m pip install -r ./requirements.txt
+COPY ./dependencies.txt ./dependencies.txt
+RUN python3 -m pip install -r ./dependencies.txt
 
 RUN rm -rf /workspace && mkdir /workspace
 WORKDIR /workspace
