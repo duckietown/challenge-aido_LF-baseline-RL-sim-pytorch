@@ -1,38 +1,24 @@
-ARG DOCKER_REGISTRY
+# syntax=docker/dockerfile:1.4
 
+# Definition of Submission container
+ARG DOCKER_REGISTRY=docker.io
 ARG ARCH=amd64
-ARG MAJOR=daffy
-ARG BASE_TAG=${MAJOR}-${ARCH}
+ARG DISTRO=ente
+ARG BASE_TAG=${DISTRO}-${ARCH}
 
 FROM ${DOCKER_REGISTRY}/duckietown/challenge-aido_lf-template-pytorch:${BASE_TAG}
 
-
-# let's create our workspace, we don't want to clutter the container
-RUN rm -rf /workspace; mkdir /workspace
-
-
-# we make the workspace our working directory
-WORKDIR /workspace
-
-ARG PIP_INDEX_URL="https://pypi.org/simple"
+ARG PIP_INDEX_URL="https://pypi.org/simple/"
 ENV PIP_INDEX_URL=${PIP_INDEX_URL}
 
+COPY ./requirements.txt ./requirements.txt
+RUN python3 -m pip install -r ./requirements.txt
 
-# here, we install the requirements, some requirements come by default
-# you can add more if you need to in requirements.txt
-COPY requirements.* ./
-RUN cat requirements.* > .requirements.txt
-RUN python3 -m pip install  -r .requirements.txt
+RUN rm -rf /workspace && mkdir /workspace
+WORKDIR /workspace
 
-# Juuuuust in case...
-RUN python3 -m pip uninstall dataclasses -y
+COPY ./solution /workspace/solution
+COPY ./training /workspace/training
+COPY ./models /workspace/models
 
-# let's copy all our solution files to our workspace
-# if you have more file use the COPY command to move them to the workspace
-COPY *.py ./
-COPY models /workspace/models
-COPY node_launch.yaml .
-
-RUN node-launch --config node_launch.yaml --check
-
-ENTRYPOINT ["node-launch", "--config", "node_launch.yaml"]
+CMD ["python3", "-m", "solution.main"]

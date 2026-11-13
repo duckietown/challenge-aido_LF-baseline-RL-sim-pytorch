@@ -1,11 +1,8 @@
 challenge:
-  - aido-LF*
-
-protocol: aido2_db18_agent-z2
+  - aido-LF-sim-validation
+protocol: aido6_embodied_sys
 user-label: "baseline-RL-sim-pytorch"
-user-payload:
-    features_required:
-        gpu: 1
+user-payload: {}
 description: |
-    This is a simple baseline solution to do reinforcement learning.
-validation_challenge: aido-hello-sim-validation
+    This is a simple reinforcement-learning lane-following baseline for the ente Duckiematrix validation challenge.
+validation_challenge: aido-LF-sim-validation
